@@ -1463,10 +1463,10 @@ zMusicList:
 Track_Init:		
 	push	de
 	pop	ix
-	ld	e, (ix+zTrackPlaybackControl)
-	ld	d, (ix+zTrackVoiceControl)
+	ld	e, (ix+0)
+	ld	d, (ix+1)
 	ld	(zVoiceTblPtr), de
-	ld	a, (ix+zTrackKeyOffset)
+	ld	a, (ix+5)
 	ld	(zTempoMod), a
 	ld	b, a
 	ld	a, (zSpeedUpFlag)
@@ -1484,24 +1484,24 @@ loc_779:				; CODE XREF: zPlaySoundByIndex+116j
 	pop	hl
 	ld	de, 6
 	add	hl, de
-	ld	a, (ix+zTrackTempoDivider)
+	ld	a, (ix+2)
 	or	a
 	jp	z, loc_7F9
 	ld	b, a
 	push	iy
 	ld	iy, zTracksStart
-	ld	c, (ix+zTrackDataPointerHigh)
+	ld	c, (ix+4)
 	ld	de, zFMDACInitBytes
 
 loc_79A:				; CODE XREF: zPlaySoundByIndex+16Ej
-	set	7, (iy+0)
+	set	7, (iy+zTrackPlaybackControl)
 	ld	a, (de)
 	inc	de
-	ld	(iy+1),	a
-	ld	(iy+2),	c
-	ld	(iy+0Ah), 2Ah ;	'*'
-	ld	(iy+7),	0C0h ; 'À'
-	ld	(iy+0Bh), 1
+	ld	(iy+zTrackVoiceControl),	a
+	ld	(iy+zTrackTempoDivider),	c
+	ld	(iy+zTrackStackPointer), zTrackSz ;	'*'
+	ld	(iy+zTrackAMSFMSPan),	0C0h ; 'À'
+	ld	(iy+zTrackDurationTimeout), 1
 	push	de
 	push	bc
 	ld	a, iyl
@@ -1520,7 +1520,7 @@ loc_79A:				; CODE XREF: zPlaySoundByIndex+16Ej
 	pop	de
 	djnz	loc_79A
 	pop	iy
-	ld	a, (ix+zTrackTempoDivider)
+	ld	a, (ix+2)
 	cp	7
 	jr	nz, loc_7DB
 	xor	a
@@ -1552,23 +1552,23 @@ loc_7F3:				; CODE XREF: zPlaySoundByIndex+17Bj
 	rst	zWriteFMI
 
 loc_7F9:				; CODE XREF: zPlaySoundByIndex+12Cj
-	ld	a, (ix+zTrackDataPointerLow)
+	ld	a, (ix+3)
 	or	a
 	jp	z, loc_845
 	ld	b, a
 	push	iy
 	ld	iy, zSongPSG1
-	ld	c, (ix+zTrackDataPointerHigh)
+	ld	c, (ix+4)
 	ld	de, zPSGInitBytes
 
 loc_80D:				; CODE XREF: zPlaySoundByIndex+1E3j
-	set	7, (iy+0)
+	set	7, (iy+zTrackPlaybackControl)
 	ld	a, (de)
 	inc	de
-	ld	(iy+1),	a
-	ld	(iy+2),	c
-	ld	(iy+0Ah), 2Ah ;	'*'
-	ld	(iy+0Bh), 1
+	ld	(iy+zTrackVoiceControl),	a
+	ld	(iy+zTrackTempoDivider),	c
+	ld	(iy+zTrackStackPointer), zTrackSz ;	'*'
+	ld	(iy+zTrackDurationTimeout), 1
 	push	de
 	push	bc
 	ld	a, iyl
