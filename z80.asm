@@ -781,7 +781,6 @@ zNoteFillUpdate:				; CODE XREF: FM_Run:loc_210p
 	bit	7, (ix+zTrackVoiceControl)
 	jp	nz, zPSGNoteOff
 	jp	sub_BAC
-	ret
 ; End of function zNoteFillUpdate
 
 
