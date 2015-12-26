@@ -1171,6 +1171,16 @@ VolEnv_Off:				; CODE XREF: zDoFlutterSetValue+2Bj
 zPSGNoteOff:				; CODE XREF: zNoteFillUpdate+12j ROM:0501j ...
 	bit	2, (ix+zTrackPlaybackControl)
 	ret	nz
+	ld	a, (ix+zTrackVoiceControl)		; Add in the PSG channel selector
+	or	a					; Is it an actual PSG channel?
+	ret	p					; Branch if not
+	or	1Fh					; Set volume to zero on PSG channel
+	ld	(7F11h), a				; Silence this channel
+	cp	0DFh					; Is this a noise channel?
+	ret	nz					; Return if not
+	ld	a, 0FFh					; Command to silence PSG3/Noise channel
+	ld	(7F11h), a				; Do it
+	ret
 ; End of function zPSGNoteOff	
 ;                 |a| |1Fh|
 ; VOL1    0x90	= 100 1xxxx	vol 4b xxxx = attenuation value
@@ -1178,15 +1188,11 @@ zPSGNoteOff:				; CODE XREF: zNoteFillUpdate+12j ROM:0501j ...
 ; VOL3    0xd0	= 110 1xxxx	vol 4b
 	
 zSilencePSG:			
-	ld	a, 1Fh							; Set volume to zero on PSG channel
-	add	a, (ix+zTrackVoiceControl)		; Add in the PSG channel selector
-	or	a								; Is it an actual PSG channel?
-	ret	p								; Branch if not
-	ld	(7F11h), a						; Silence this channel
-	bit	0, (ix+zTrackPlaybackControl)	; Is this a noise channel?
-	ret	z								; Return if not
-	ld	a, 0FFh							; Command to silence PSG3/Noise channel
-	ld	(7F11h), a						; Do it
+	ld	hl, 7F11h
+	ld	(hl), 9Fh
+	ld	(hl), 0BFh
+	ld	(hl), 0DFh
+	ld	(hl), 0FFh
 	ret
 ; END OF FUNCTION CHUNK	FOR zClearTrackPlaybackMem
 
