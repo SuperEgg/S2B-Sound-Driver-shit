@@ -1510,12 +1510,10 @@ loc_79A:				; CODE XREF: zPlaySoundByIndex+16Ej
 	ld	(iy+0Bh), 1
 	push	de
 	push	bc
-	db	0FDh	; yl
-	ld	a, l
+	ld	a, iyl
 	add	a, 3
 	ld	e, a
-	db	0FDh	; yh
-	adc	a, h
+	adc	a, iyu
 	sub	e
 	ld	d, a
 	ldi
@@ -1579,12 +1577,10 @@ loc_80D:				; CODE XREF: zPlaySoundByIndex+1E3j
 	ld	(iy+0Bh), 1
 	push	de
 	push	bc
-	db	0FDh	; yl
-	ld	a, l
+	ld	a, iyl
 	add	a, 3
 	ld	e, a
-	db	0FDh	; yh
-	adc	a, h
+	adc	a, iyu
 	sub	e
 	ld	d, a
 	ldi
@@ -1762,10 +1758,8 @@ loc_91F:				; DATA XREF: zPlaySoundByIndex+2BEw
 
 loc_929:				; DATA XREF: zPlaySoundByIndex+2C8w
 	ld	ix, (zSFXTrackOffs)
-	db	0DDh	; xl
-	ld	e, l
-	db	0DDh	; xh
-	ld	d, h
+	ld	e, ixl
+	ld	d, ixu
 	push	de
 	ld	l, e
 	ld	h, d
@@ -2732,14 +2726,10 @@ cfModulation:
 	ld	(ix+zTrackModulationPtrHigh),h				; ''
 
 zPrepareModulation:
-	;ld	a, xl
-	db	0DDh
-	ld	a,l					; load lower byte of channel RAM address
+	ld	a,ixl					; load lower byte of channel RAM address
 	add	a,013h					; advance to the 13th byte of channel RAM
 	ld	e,a					; save to e
-;	ld	e,xh ; Undocumented instruction, see below
-	db	0DDh
-	adc	a,h					; add upper byte of channel RAM address
+	adc	a,ixu					; add upper byte of channel RAM address
 	sub	e					; remove lower byte's value from it
 	ld	d,a					; save to d (de = channel RAM address of modulation)
 	ld	bc,3
@@ -2921,12 +2911,8 @@ cfRepeatAtPos:
 	add	a,020h					; advance to RAM address of correct loop slot
 	ld	l,a					; set address in hl
 	ld	h,0					; ''
-;	ld	e,xl ; Undocumented instruction, see below
-	db	0DDh
-	ld	e,l					; load lower byte of channel RAM address
-;	ld	d,xh ; Undocumented instruction, see below
-	db	0DDh	; xh
-	ld	d,h					; load upper byte of channel RAM address
+	ld	e,ixl					; load lower byte of channel RAM address
+	ld	d,ixu					; load upper byte of channel RAM address
 	add	hl,de					; advance to loop slot in channel RAM
 	ld	a,(hl)					; load current loop amount
 	or	a					; is it 00?
@@ -2961,13 +2947,9 @@ cfJumpToGosub:
 	ld	b,(hl)					; load upper byte of address to b (bc = jump address)
 	inc	hl					; increase tracker address
 	ex	de,hl					; swap stack address with tracker address
-;	add	a,xl ; Undocumented instruction, see below
-	db	0DDh
-	add	a,l					; add lower byte of channel RAM address
+	add	a,ixl					; add lower byte of channel RAM address
 	ld	l,a					; save lower byte to l
-;	adc	a,xh ; Undocumented instruction, see below
-	db	0DDh
-	adc	a,h					; add upper byte of channel RAM address (with carry)
+	adc	a,ixu					; add upper byte of channel RAM address (with carry)
 	sub	l					; minus address by 1
 	ld	h,a					; save upper byte to h (hl = new F8 stack address in channel RAM)
 	ld	(hl),e					; store current tracker address to the F8 stack
