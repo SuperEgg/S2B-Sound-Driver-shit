@@ -25,7 +25,7 @@
 ; AS crap
 ; ---------------------------------------------------------------------------
 
-	cpu z80						; Assemble z80 functions
+	cpu z80undoc						; Assemble z80 functions with undocumented instructions
 	listing purecode					; Turn off listings
 	phase	0					; Set offset to $0000
 
@@ -321,6 +321,8 @@ loc_D9:
 ; DPCM sample data load
 ; ---------------------------------------------------------------------------	
 zUpdateDAC:		
+	ld	a,02Ah					; set YM2612 address to DAC port
+	ld	(04000h),a				; ''
 	ld	a,(zCurDAC)				; Get currently playing DAC sound
 	or	a
 	jp	m,+						; If one is queued (80h+), go to it!
@@ -3033,18 +3035,14 @@ DPCM_WaitSample:
 DPCM_PlaySample:
 	djnz	$					; delay for pitch (decreasing b and branching to itself for a delay)
 	di						; disable interrupts (prevent tracker code from playing)
-	ld	a,02Ah					; set YM2612 address to DAC port
-	ld	(04000h),a				; ''
 	ld	a,(hl)					; load DPCM byte
 	rlca						; move the left nybble to the right
 	rlca						; ''
 	rlca						; ''
 	rlca						; ''
 	and	00Fh					; clear everything except the nybble
-	ld	(DPCM_LeftOffset+002h),a		; write the nybble number to the "iy+000h" below
+	ld	iyl,a					; make the nybble number an index into DPCM_NybbleCon
 	ex	af,af'					; load last PCM byte
-
-DPCM_LeftOffset:
 	add	a,(iy+000h)				; add correct byte from the DPCM table
 	ld	(04001h),a				; save byte to DAC port
 	ex	af,af'					; store PCM byte as "last PCM byte"
@@ -3053,17 +3051,13 @@ DPCM_LeftOffset:
 	nop						; delay (probably for a precice pitch)
 	djnz	$					; delay for pitch (decreasing b and branching to itself for a delay)
 	di						; disable interrupts (prevent tracker code from playing)
-	ld	a,02Ah					; set YM2612 address to DAC port
-	ld	(04000h),a				; ''
 	ld	b,c					; load pitch delay amount
 	ld	a,(hl)					; load DPCM byte
 	inc	hl					; advance to next DPCM byte (for next loop)
 	dec	de					; decrease size
 	and	00Fh					; get only the right nybble
-	ld	(DPCM_RightOffset+002h),a		; write the nybble number to the "iy+000h" below
+	ld	iyl,a					; make the nybble number an index into DPCM_NybbleCon
 	ex	af,af'					; load last PCM byte
-
-DPCM_RightOffset:
 	add	a,(iy+000h)				; add correct byte from the DPCM table
 	ld	(04001h),a				; save byte to DAC port
 	ex	af,af'					; store PCM byte as "last PCM byte"
@@ -3084,6 +3078,8 @@ DPCM_RightOffset:
 	jp	DPCM_WaitSample				; loop for the next byte
 ; End of function zClearTrackPlaybackMem
 
+; The way this table is accessed requires it is aligned to 100h
+	align 100h
 DPCM_NybbleCon:	
 	db	   0,	 1,   2,   4,   8,  10h,  20h,  40h
 	db	 80h,	-1,  -2,  -4,  -8, -10h, -20h, -40h
