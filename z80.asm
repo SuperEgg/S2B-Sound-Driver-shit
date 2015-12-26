@@ -336,10 +336,11 @@ zUpdateDAC:
 	ld	hl,zCurDAC			; Get address of 'current DAC sound' value
 	res	7,(hl)				; Subtract 80h (first DAC index is 80h)
 	ld	a,(hl)				; Get current DAC sound value
-	add	a,DAC_Banks&0FFh			; Offset into list
-	ld	(.writeme+1),a				; Store into the instruction after .writeme (self-modifying code)
-.writeme:
-	ld	a,(DAC_Banks)				; Get DAC's bank value
+	ld	c,a
+	ld	b,0
+	ld	hl,DAC_Banks
+	add	hl,bc
+	ld	a,(hl)				; Get DAC's bank value
 	ld	(DAC_BankID),a
 	call	zBankSwitch
 	ld	a,80h
@@ -347,10 +348,14 @@ zUpdateDAC:
 	ld	a,(zCurDAC)				; Get currently playing DAC sound
 	add	a,a
 	add	a,a						; a *= 4 (each DAC entry is a pointer and length, 2+2)
-	add	a,zDACPtrTbl&0FFh			; advance to starting of table
-	ld	(DPCM_Address+001h),a			; advance table address (see below)
-	add	a,002h					; increase to second word
-	ld	(DPCM_Size+002h),a			; advance table address (see below)
+	ld	c,a
+	ld	b,0
+	ld	hl,zDACPtrTbl
+	add	hl,bc
+	ld	(DPCM_Address+001h),hl			; store sample address (relative to bank)
+	inc	hl
+	inc	hl
+	ld	(DPCM_Size+002h),hl			; store sample length
 	pop	af					; restore possible current sample byte
 	ld	hl,DPCM_PlaySample			; set return address to the start of the DPCM playback routine (so the sample starts properly)
 	ex	(sp),hl					; ''
