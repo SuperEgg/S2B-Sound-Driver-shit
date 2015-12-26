@@ -1,0 +1,65 @@
+Type: Level
+
+Zone ID:    0
+Act ID:     0
+
+Object Def:     objdef\s2obj
+Object Palette: objdef\s2obj1.pcx
+
+8x8 Compression:       3
+Num 8x8 Pages:         1
+8x8 Tiles Page 0:      ..\ppz\Tiles.bin
+
+16x16 Compression:     0
+Num 16x16 Pages:       1
+Page0 8x8 Page:        0
+16x16 Tiles Page 0:    ..\ppz\Blocks.bin
+
+Metatile Size:         128
+Metatile Compression:  1
+Num Metatile Pages:    1
+Page0 16x16 Page:      0
+Metatile Tiles Page 0: ..\ppz\chunks.bin
+
+Layout Format:         1
+Layout Compression:    1
+BG 128x128 Page:       0
+FG Layout: ..\ppz\Foreground.bin
+
+Objects Format:        1
+Objects:          ..\PPZ\Obj_Act1.dat 
+Rings Format:          1
+Rings:		..\PPZ\Rng_Act1.dat 
+Misc Format:           0
+Num Start Positions:   1
+Start Position 0:      
+
+Palettes-
+
+ Number of files: 2
+
+  Palette 1-
+
+   Start index:        0
+   Number of entries: 16
+   File:           
+
+  Palette 2-
+
+   Start index:       16
+   Number of entries: 48
+   File:              ..\PPZ\PPZ_pal.bin
+
+Collision Map Format:    0
+Collision Array:         ..\data\all\C_Array1.dat
+Rotated Collision Array: ..\data\all\C_Array2.dat
+Angle Array:             ..\data\all\AngleMap.dat
+
+Collision Index Format:      1
+Collision Index Compression: 0
+Collision Index 1: 		..\PPZ\PPz_Col1.bin
+Collision Index 2: 		..\PPZ\PPz_Col2.bin
+
+Game Name: Sonic 2
+
+-EOF-
