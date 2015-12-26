@@ -346,11 +346,12 @@ zUpdateDAC:
 	ld	a,80h
 	ex	af,af'	;'
 	ld	a,(zCurDAC)				; Get currently playing DAC sound
-	add	a,a
-	add	a,a						; a *= 4 (each DAC entry is a pointer and length, 2+2)
 	ld	c,a
 	ld	b,0
 	ld	hl,zDACPtrTbl
+	add	hl,bc					; Each entry in zDACPtrTbl is 4 bytes bit, so add the index 4 times.
+	add	hl,bc					; Stock S2B used two 'add a,a' instructions, which was dangerous,
+	add	hl,bc					; and limited the number of DAC samples to 40h.
 	add	hl,bc
 	ld	(DPCM_Address+001h),hl			; store sample address (relative to bank)
 	inc	hl
