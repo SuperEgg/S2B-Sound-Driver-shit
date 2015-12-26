@@ -2268,13 +2268,13 @@ TRF_Jump:
 cfPanningAMSFMS:
 	bit	7,(ix+zTrackVoiceControl)				; is the channel a PSG channel?
 	ret	m					; if so, return
-	bit	2,(ix+zTrackPlaybackControl)
-	ret	nz
 	ld	c,a					; store new pan value in c
 	ld	a,(ix+zTrackAMSFMSPan)				; load current pan value and LFO settings
 	and	037h					; clear the current pan value
 	or	c					; save new pan value
 	ld	(ix+zTrackAMSFMSPan),a				; save back to channel RAM
+	bit	2,(ix+zTrackPlaybackControl)
+	ret	nz
 	ld	c,a					; save new value to c
 	ld	a,(ix+zTrackVoiceControl)				; load channel ID
 	and	003h					; get only ID
