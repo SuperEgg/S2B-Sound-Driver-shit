@@ -1449,7 +1449,6 @@ zBankList:
 	add	hl, de
 	ld	a, (hl)
 	ld	(zMusicBankNumber),a				; save as bank offset to read 0000 - 7FFF or 8000 - FFFF
-	add	a, a
 zMusicList:		
 	ld	hl, zMusicPlaylist
 	add	hl, de
@@ -1621,7 +1620,7 @@ loc_866:				; CODE XREF: zPlaySoundByIndex+200j
 
 loc_86B:				; DATA XREF: zPlaySoundByIndex+20Aw
 	ld	hl, (zMusicTrackOffs)
-	res	2, (hl)
+	set	2, (hl)
 
 loc_870:				; CODE XREF: zPlaySoundByIndex+1F4j
 	add	ix, de
