@@ -1202,11 +1202,6 @@ sub_5FA:				; CODE XREF: zPauseMusic+1Cp zPauseMusic+34p ...
 	jr	z, loc_619
 	bit	2, (ix+zTrackPlaybackControl)
 	jr	nz, loc_619
-	ld	c, (ix+zTrackAMSFMSPan)
-	ld	a, (ix+zTrackVoiceControl)
-	and	3
-	add	a, 0B4h	; '´'
-	rst	WriteYM2612
 	push	bc
 	ld	a, (ix+zTrackVoiceIndex)
 	call	zSetVoiceMusic
@@ -1491,10 +1486,8 @@ loc_79A:				; CODE XREF: zPlaySoundByIndex+16Ej
 	adc	a, iyu
 	sub	e
 	ld	d, a
-	ldi
-	ldi
-	ldi
-	ldi
+	ld	bc,4
+	ldir						; while (bc-- > 0) *de++ = *hl++; (copy track address, default key offset, default volume)
 	ld	de, 2Ah	; '*'
 	add	iy, de
 	pop	bc
@@ -1505,14 +1498,10 @@ loc_79A:				; CODE XREF: zPlaySoundByIndex+16Ej
 	cp	7
 	jr	nz, loc_7DB
 	xor	a
-	ld	c, a
 	jr	loc_7F3
 ; ---------------------------------------------------------------------------
 
 loc_7DB:				; CODE XREF: zPlaySoundByIndex+177j
-	ld	a, 28h ; '('
-	ld	c, 6
-	rst	zWriteFMI
 	ld	a, 42h ; 'B'
 	ld	c, 0FFh
 	ld	b, 4
@@ -1525,9 +1514,9 @@ loc_7E6:				; CODE XREF: zPlaySoundByIndex+18Bj
 	ld	c, 0C0h	; 'À'
 	rst	zWriteFMII
 	ld	a, 80h ; '€'
-	ld	c, a
 
 loc_7F3:				; CODE XREF: zPlaySoundByIndex+17Bj
+	ld	c, a
 	ld	(zDACEnabled), a
 	ld	a, 2Bh ; '+'
 	rst	zWriteFMI
@@ -1558,10 +1547,8 @@ loc_80D:				; CODE XREF: zPlaySoundByIndex+1E3j
 	adc	a, iyu
 	sub	e
 	ld	d, a
-	ldi
-	ldi
-	ldi
-	ldi
+	ld	bc,4
+	ldir						; while (bc-- > 0) *de++ = *hl++; (copy track address, default key offset, default volume)
 	inc	hl
 	ld	a, (hl)
 	inc	hl
@@ -1657,7 +1644,6 @@ loc_8AF:				; CODE XREF: zPlaySoundByIndex+24Dj
 ; ---------------------------------------------------------------------------
 
 zPlaySound_CheckGloop:				; CODE XREF: zPlaySoundByIndex+247j
-	ld	a, c
 	cp	0A7h ; '§'
 	jr	nz, loc_8C5
 	ld	a, (byte_11AC)
@@ -1757,10 +1743,8 @@ loc_929:				; DATA XREF: zPlaySoundByIndex+2C8w
 	adc	a, d
 	sub	e
 	ld	d, a
-	ldi
-	ldi
-	ldi
-	ldi
+	ld	bc,4
+	ldir						; while (bc-- > 0) *de++ = *hl++; (copy track address, default key offset)
 
 loc_95E:				; DATA XREF: zPlaySoundByIndex+293w
 				; zPlaySoundByIndex:loc_901w
@@ -2570,21 +2554,13 @@ zSetVoiceMusic:				; CODE XREF: sub_5FA+1Bp zStopSoundEffects+3Ap ...
 	ld	hl, (zVoiceTblPtr)
 
 loc_D79:				; CODE XREF: ROM:0D74j
-	push	hl
-	ld	c, a
-	ld	b, 0
-	add	a, a
-	ld	l, a
-	ld	h, b
-	add	hl, hl
-	add	hl, hl
-	ld	e, l
-	ld	d, h
-	add	hl, hl
-	add	hl, de
-	add	hl, bc
-	pop	de
-	add	hl, de
+	ld	e,a
+	ld	d,0
+	
+	ld	b,25
+
+-	add	hl,de
+	djnz	-
 	
 	ld	a, (hl)
 	inc	hl
