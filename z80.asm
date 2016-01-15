@@ -72,11 +72,6 @@ bankswitch2 macro
 		xor	a
 		ld	(hl), a
 	endm
-
-JumpCut macro index	
-	jp 	index
-	nop
-	endm
 ; ===========================================================================
 zTrackPlaybackControl	= 0
 zTrackVoiceControl		= 1
@@ -1302,8 +1297,9 @@ zPlaySoundByIndex:				; CODE XREF: V_Int+3Ep
 	cp	0FEh ; 'þ'
 	ret	nc
 	sub	0F8h ; 'ù'
+	ld	c, a
 	add	a, a
-	add	a, a
+	add	a, c
 	ld	(loc_681+1), a
 
 loc_681:				; CODE XREF: zPlaySoundByIndex:loc_681j
@@ -1311,22 +1307,16 @@ loc_681:				; CODE XREF: zPlaySoundByIndex:loc_681j
 	jr	$
 ; ---------------------------------------------------------------------------
 	jp	zStopSoundEffects ; sound test index 78
-	nop
 ; ---------------------------------------------------------------------------
 	jp	zFadeOutMusic	; 79
-	nop
 ; ---------------------------------------------------------------------------		
 	jp	zPlaySegaSound	;7A
-	nop
 ; ---------------------------------------------------------------------------		
 	jp	zSpeedUpMusic 	;7B
-	nop
 ; ---------------------------------------------------------------------------		
 	jp	zSlowDownMusic
-	nop
 ; ---------------------------------------------------------------------------		
 	jp	zClearTrackPlaybackMem
-	nop
 ; ---------------------------------------------------------------------------
 zPlaySegaSound:				; CODE XREF: zPlaySoundByIndex+29j
 	ld	a, 2Bh ; '+'
@@ -2193,8 +2183,9 @@ SetMusicBanks:
 
 SMPS_Flags:
 	sub	0E0h					; subtract E0 from value
+	ld	c,a
 	add	a,a					; multiply by 4
-	add	a,a					; ''
+	add	a,c					; multiply by 6
 	ld	(TRF_Jump+001h),a			; change the jump offset
 	ld	a,(hl)					; load next byte in tracker
 	inc	hl					; increase to next byte
@@ -2203,41 +2194,41 @@ TRF_Jump:
 	jr	TRF_Jump				; jump to correct jump instruction
 
 ; ---------------------------------------------------------------------------
-; Jump list for flags E0 - F9 (nop instructions are a byte filler)
+; Jump list for flags E0 - F9
 ; ---------------------------------------------------------------------------
 
-	JumpCut	cfPanningAMSFMS		; E0: Panning
-	JumpCut	cfAlterNotes		; E1: Pitch Bend
-	JumpCut cfFadeInToPrevious	; E2: Fade to Previous Song. Used for 1 Up mostly. Formerly E4		
-	JumpCut cfSilenceStopTrack	; E3: Silence FM Channel. Mostly unused.
-	JumpCut cfSetVolume			; E4 Set volume of channel	; Formerly E6
-	JumpCut	cfSetTempoDivider	; E5: Change the Tempo Divider 
-	JumpCut	cfChangeVolume		; E6: Change volume of channel
-	JumpCut	cfPreventAttack		; E7: prevent next note from attacking 
-	JumpCut	cfNoteFill			; E8: Fills note
-	JumpCut	cfSetCommunication	; E9: Unused; Ristar specific byte. Dead Code		
-	JumpCut	cfSetTempo			; EA: Set Tempo
-	JumpCut	cfSetTempoMod		; EB: Change Tempo Modifier for all channels
-	JumpCut	cfChangePSGVolume	; EC: 
-	JumpCut	cfSetKey			; ED:
-	JumpCut	cfSendFMI			; EE: FM 1 Operators 3 and 4, second amplitude high, release rate mute. Formerly F9
-	JumpCut	cfSetVoice			; EF: 
-	JumpCut	cfModulation		; F0: Set modulation
-	JumpCut	cfAlterModulation	; F1: Enable modulation
-	JumpCut	cfStopTrack			; F2: Stop Track
-	JumpCut	cfSetPSGNoise		; F3: PSG Noise
-	JumpCut	cfSetModulation		; F4: Enable modulation. Formerly F1
-	JumpCut	cfSetPSGTone		; F5: Set PSG Tone
-	JumpCut	cfJumpTo			; F6: Branch instruction
-	JumpCut	cfRepeatAtPos		; F7: Loop
-	JumpCut	cfJumpToGosub		; F8: Call instruction
-	JumpCut	cfJumpReturn		; F9: cfJumpReturn. Formally E3
-	JumpCut	cfDisableModulation	; FA: Disable modulation. Formerly F4
-	JumpCut	cfAddKey			; FB: Add key to channel. Formerly E9
-	JumpCut	cfClearPush			; FC: Formerly ED
-	JumpCut	cfClearPush			; FD: Formerly ED
-	JumpCut	cfClearPush			; FE: Formerly ED
-	JumpCut	cfSetVolume2		; FF: Formerly ED
+	jp	cfPanningAMSFMS		; E0: Panning
+	jp	cfAlterNotes		; E1: Pitch Bend
+	jp	cfFadeInToPrevious	; E2: Fade to Previous Song. Used for 1 Up mostly. Formerly E4		
+	jp	cfSilenceStopTrack	; E3: Silence FM Channel. Mostly unused.
+	jp	cfSetVolume		; E4 Set volume of channel	; Formerly E6
+	jp	cfSetTempoDivider	; E5: Change the Tempo Divider 
+	jp	cfChangeVolume		; E6: Change volume of channel
+	jp	cfPreventAttack		; E7: prevent next note from attacking 
+	jp	cfNoteFill		; E8: Fills note
+	jp	cfSetCommunication	; E9: Unused; Ristar specific byte. Dead Code		
+	jp	cfSetTempo		; EA: Set Tempo
+	jp	cfSetTempoMod		; EB: Change Tempo Modifier for all channels
+	jp	cfChangePSGVolume	; EC: 
+	jp	cfSetKey		; ED:
+	jp	cfSendFMI		; EE: FM 1 Operators 3 and 4, second amplitude high, release rate mute. Formerly F9
+	jp	cfSetVoice		; EF: 
+	jp	cfModulation		; F0: Set modulation
+	jp	cfAlterModulation	; F1: Enable modulation
+	jp	cfStopTrack		; F2: Stop Track
+	jp	cfSetPSGNoise		; F3: PSG Noise
+	jp	cfSetModulation		; F4: Enable modulation. Formerly F1
+	jp	cfSetPSGTone		; F5: Set PSG Tone
+	jp	cfJumpTo		; F6: Branch instruction
+	jp	cfRepeatAtPos		; F7: Loop
+	jp	cfJumpToGosub		; F8: Call instruction
+	jp	cfJumpReturn		; F9: cfJumpReturn. Formally E3
+	jp	cfDisableModulation	; FA: Disable modulation. Formerly F4
+	jp	cfAddKey		; FB: Add key to channel. Formerly E9
+	jp	cfClearPush		; FC: Formerly ED
+	jp	cfClearPush		; FD: Formerly ED
+	jp	cfClearPush		; FE: Formerly ED
+	jp	cfSetVolume2		; FF: Formerly ED
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Flags E0 - Panning
