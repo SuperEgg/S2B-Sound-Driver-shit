@@ -1131,8 +1131,10 @@ VolEnv_Reset:
 ; ---------------------------------------------------------------------------
 	
 VolEnv_Off:				; CODE XREF: zDoFlutterSetValue+2Bj
+	; This just decrements the flutter to keep it in place; no more volume changes in this list
 	dec	(ix+zTrackVolFlutter)
-	ret						; Put track at rest
+	dec	(ix+zTrackVolFlutter)				; Put index back (before final volume value)
+	jr	zDoFlutter				; Loop back and update volume 
 ; ---------------------------------------------------------------------------
 ; END OF FUNCTION CHUNK	FOR zDoFlutterSetValue
 
@@ -1319,6 +1321,11 @@ loc_681:				; CODE XREF: zPlaySoundByIndex:loc_681j
 	jp	zClearTrackPlaybackMem
 ; ---------------------------------------------------------------------------
 zPlaySegaSound:				; CODE XREF: zPlaySoundByIndex+29j
+	; reset panning (don't want Sega sound playing on only one speaker)
+	ld	a,0B6h			; Set Panning / AMS / FMS
+	ld	c,0C0h			; default Panning / AMS / FMS settings (only stereo L/R enabled)
+	rst	zWriteFMII		; Set it!
+
 	ld	a, 2Bh ; '+'
 	ld	c, 80h ; '€'
 	rst	zWriteFMI ; Sega sound
@@ -1923,7 +1930,9 @@ loc_A47:				; CODE XREF: zUpdateFadeout+60j
 loc_A5E:				; CODE XREF: zUpdateFadeout+4Aj
 	push	bc
 	ld	b, (ix+zTrackVolume)
-	call	zDoFlutterAdvance
+	ld	a,(ix+zTrackVoiceIndex)
+	or	a			; Is this track using volume envelope 0 (no envelope)?
+	call	z,zDoFlutterAdvance	; If so, update volume (this code is only run on envelope 1+, so we need to do it here for envelope 0)
 	pop	bc
 
 loc_A66:				; CODE XREF: zUpdateFadeout+40j zUpdateFadeout+51j
@@ -2105,7 +2114,9 @@ loc_B7A:				; CODE XREF: zUpdateFadeIn+60j
 loc_B8C:				; CODE XREF: zUpdateFadeIn+51j
 	push	bc
 	ld	b, a
-	call	zDoFlutterAdvance
+	ld	a,(ix+zTrackVoiceIndex)
+	or	a			; Is this track using volume envelope 0 (no envelope)?
+	call	z,zDoFlutterAdvance	; If so, update volume (this code is only run on envelope 1+, so we need to do it here for envelope 0)
 	pop	bc
 
 loc_B92:				; CODE XREF: zUpdateFadeIn+47j
@@ -2343,6 +2354,12 @@ loc_CD7:				; CODE XREF: ROM:0CF0j
 	ld	a, (ix+zTrackVolume)
 	add	a, c
 	ld	(ix+zTrackVolume),	a
+	; Restore PSG noise type
+	ld	a,(ix+zTrackVoiceControl)
+	cp	0E0h				; Is this the Noise Channel?
+	jr	nz,+				; If not, branch
+	ld	a,(ix+zTrackPSGNoise)
+	ld	(zPSG),a			; Restore Noise setting
 
 loc_CEB:				; CODE XREF: ROM:0CDBj
 	ld	de, 2Ah	; '*'
