@@ -1185,7 +1185,6 @@ zPauseMusic:				; CODE XREF: V_Int+13p
 ; ---------------------------------------------------------------------------
 
 loc_5CD:				; CODE XREF: zPauseMusicj
-	push	ix
 	ld	(ix+zTrackDataPointerLow),	0
 	ld	ix, zTracksStart
 	ld	b, 7
@@ -1194,8 +1193,6 @@ loc_5CD:				; CODE XREF: zPauseMusicj
 	ld	ix, zTracksSFXStart
 	ld	b, 3
 	call	sub_5FA
-	call	SetMusicBanks				; set the bank address
-	pop	ix
 	ret
 ; End of function zPauseMusic
 
