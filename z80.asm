@@ -177,20 +177,8 @@ z1upBackupSz = 10*zTrackSz+18h		; ... specifically, this value
 	jp	InitDriver					; continue to main sound driver code
 
 ; ===========================================================================
-; ---------------------------------------------------------------------------
-; (rst 08) Subroutine to wait for the YM2612 to be ready
-; ---------------------------------------------------------------------------
 	zPalModeByte:
 	db	0
-	zPadding1:	
-	pad	00007h
-; ---------------------------------------------------------------------------
-
-WaitYM2612:
-	ld	a,(zYM2612_A0)				; load YM2612 status
-	add	a,a					; shift busy flag into carry
-	jr	c,WaitYM2612				; if the busy flag is set, branch to keep checking
-	ret						; return (YM2612 is not busy)
 
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
