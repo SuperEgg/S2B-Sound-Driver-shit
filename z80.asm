@@ -1190,13 +1190,13 @@ zPauseMusic:				; CODE XREF: V_Int+13p
 	jp	m, loc_5CD
 	cp	2
 	ret	z
-	ld	(ix+zTrackDataPointerLow), 2
+	ld	(ix+zStopMusic), 2
 	call	zSilenceFM
 	jp	zSilencePSG
 ; ---------------------------------------------------------------------------
 
 loc_5CD:				; CODE XREF: zPauseMusicj
-	ld	(ix+zTrackDataPointerLow), 0
+	ld	(ix+zStopMusic), 0
 	ld	ix, zSongFMDACStart
 	ld	b, (zSongFMDACEnd-zSongFMDACStart)/zTrackSz
 	call	sub_5FA
