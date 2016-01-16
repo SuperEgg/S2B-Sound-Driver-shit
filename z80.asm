@@ -308,7 +308,7 @@ loc_D9:
 ; ---------------------------------------------------------------------------	
 zUpdateDAC:		
 	ld	a,02Ah					; set YM2612 address to DAC port
-	ld	(04000h),a				; ''
+	ld	(zYM2612_A0),a				; ''
 	ld	a,(zCurDAC)				; Get currently playing DAC sound
 	or	a
 	jp	m,+						; If one is queued (80h+), go to it!
@@ -1338,7 +1338,7 @@ zPlaySegaSound:				; CODE XREF: zPlaySoundByIndex+29j
 
 loc_6B8:				; CODE XREF: zPlaySoundByIndex+77j
 	ld	a, (hl)
-	ld	(4001h), a
+	ld	(zYM2612_D0), a
 	inc	hl
 	nop
 	ld	b, 0Ch
@@ -1349,7 +1349,7 @@ loc_6C0:				; CODE XREF: zPlaySoundByIndex:loc_6C0j
 	cp	c
 	jr	nz, loc_6D8
 	ld	a, (hl)
-	ld	(4001h), a
+	ld	(zYM2612_D0), a
 	inc	hl
 	nop
 	ld	b, 0Ch
@@ -2982,7 +2982,7 @@ DPCM_PlaySample:
 	ld	iyl,a					; make the nybble number an index into DPCM_NybbleCon
 	ex	af,af'					; load last PCM byte
 	add	a,(iy+000h)				; add correct byte from the DPCM table
-	ld	(04001h),a				; save byte to DAC port
+	ld	(zYM2612_D0),a				; save byte to DAC port
 	ex	af,af'					; store PCM byte as "last PCM byte"
 	ld	b,c					; load pitch delay amount
 	ei						; enable interrupts (allow tracker code to play)
@@ -2997,7 +2997,7 @@ DPCM_PlaySample:
 	ld	iyl,a					; make the nybble number an index into DPCM_NybbleCon
 	ex	af,af'					; load last PCM byte
 	add	a,(iy+000h)				; add correct byte from the DPCM table
-	ld	(04001h),a				; save byte to DAC port
+	ld	(zYM2612_D0),a				; save byte to DAC port
 	ex	af,af'					; store PCM byte as "last PCM byte"
 	ei						; enable interrupts (allow tracker code to play)
 	
