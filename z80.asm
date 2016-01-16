@@ -529,7 +529,6 @@ InitDriver:
 ; ---------------------------------------------------------------------------
 ; Nybble to Byte conversion table for DPCM decompression
 ; ---------------------------------------------------------------------------
-	pad 	10h
 	; The following two tables are used for when an SFX terminates
 	; its track to properly restore the music track it temporarily took
 	; over.  Note that an important rule here is that no SFX may use
