@@ -19,13 +19,13 @@ Snd_Title_FM1:
 	smpsSetvoice        $04
 	smpsAlterNote       $F6
 	dc.b	nRst, $6C
-	smpsModSetS3K          $2A, $01, $29, $00
+	smpsModSet          $2A, $01, $29, $00
 	dc.b	nE4, $3C, smpsNoAttack
-	smpsModSetS3K          $01, $00, $00, $00
+	smpsModSet          $01, $00, $00, $00
 	dc.b	nE4, $18
 	smpsSetvoice        $00
 	smpsAlterNote       $00
-	smpsModSetS3K          $14, $01, $04, $07
+	smpsModSet          $14, $01, $04, $07
 
 Snd_Title_Jump00:
 	dc.b	nA4, $18, nFs4, $0C, nE4, nA4, nFs4, nD4, nE4, $30, nD5, $18
@@ -50,7 +50,7 @@ Snd_Title_Jump00:
 ; FM2 Data
 Snd_Title_FM2:
 	smpsSetvoice        $01
-	smpsModSetS3K          $15, $01, $06, $06
+	smpsModSet          $15, $01, $06, $06
 	dc.b	nE1, $06, nE1, nRst, nE1, nRst, nE1, nE1, smpsNoAttack, nE1, nRst, nRst
 	dc.b	nE1, smpsNoAttack, nE1, nE1, nE1, nE1, smpsNoAttack, nE1, nE1, $06, nE1, nRst
 	dc.b	nE1, nRst, nE1, nE1, smpsNoAttack, nE1, nRst, nRst, nE1, smpsNoAttack, nE1, nE1
@@ -71,13 +71,13 @@ Snd_Title_FM3:
 	smpsSetvoice        $04
 	smpsPan             panCenter, $00
 	dc.b	nRst, $60
-	smpsModSetS3K          $2A, $01, $29, $00
+	smpsModSet          $2A, $01, $29, $00
 	dc.b	nE4, $3C, smpsNoAttack
-	smpsModSetS3K          $01, $00, $00, $00
+	smpsModSet          $01, $00, $00, $00
 	dc.b	nE4, $24
 	smpsSetvoice        $02
 	smpsPan             panLeft, $00
-	smpsModSetS3K          $00, $00, $00, $00
+	smpsModSet          $00, $00, $00, $00
 
 Snd_Title_Loop00:
 	dc.b	nA2, $06, nA2
@@ -152,10 +152,10 @@ Snd_Title_FM4:
 	smpsSetvoice        $05
 	smpsAlterNote       $FC
 	smpsPan             panRight, $00
-	smpsModSetS3K          $01, $01, $06, $00
+	smpsModSet          $01, $01, $06, $00
 	dc.b	nG3, $60, smpsNoAttack, nG3
 	smpsSetvoice        $03
-	smpsModSetS3K          $14, $01, $04, $06
+	smpsModSet          $14, $01, $04, $06
 	dc.b	nRst, $18, nA3, $0C, nRst, $18, nFs3, $09, nRst, $0F, nE3, $24
 	dc.b	nRst, $48, nRst, $18, nA3, $0C, nRst, $18, nA3, $09, nRst, $1B
 	dc.b	nB3, $06, nRst, nB3, $18, nB3, $30, nRst, $0C, nA3, $0C, nRst
@@ -173,11 +173,11 @@ Snd_Title_FM4:
 Snd_Title_FM5:
 	smpsPan             panLeft, $00
 	smpsSetvoice        $05
-	smpsModSetS3K          $01, $01, $06, $00
+	smpsModSet          $01, $01, $06, $00
 	dc.b	nG3, $60, smpsNoAttack, nG3
 	smpsSetvoice        $03
 	smpsAlterNote       $04
-	smpsModSetS3K          $14, $01, $04, $06
+	smpsModSet          $14, $01, $04, $06
 	dc.b	nRst, $18, nA3, $0C, nRst, $18, nFs3, $09, nRst, $0F, nE3, $24
 	dc.b	nRst, $48, nRst, $18, nA3, $0C, nRst, $18, nFs3, $09, nRst, $1B
 	dc.b	nG3, $06, nRst, nG3, $18, nE3, $30, nRst, $0C, nA3, $0C, nRst
@@ -203,7 +203,7 @@ Snd_Title_PSG1:
 	dc.b	nAb4, nB4, nA4, nCs5
 	smpsPSGAlterVol     $03
 	smpsAlterPitch      $0C
-	smpsModSetS3K          $00, $00, $00, $00
+	smpsModSet          $00, $00, $00, $00
 	dc.b	nE4, $0C, nB3, nE4, nB3, nE4, nB3, nE4, nB3, nD4, nB3, nE4
 	dc.b	nB3, nE4, nB3, nE4, nB3, nE4, $0C, nB3, nE4, nB3, nE4, nB3
 	dc.b	nE4, nB3, nD4, nB3, nD4, nB3, nD5, nB4, nD5, nB4, nE4, $0C
@@ -227,10 +227,10 @@ Snd_Title_PSG1:
 
 ; PSG2 Data
 Snd_Title_PSG2:
-	smpsModSetS3K          $01, $01, $FD, $00
+	smpsModSet          $01, $01, $FD, $00
 	smpsAlterNote       $04
 	dc.b	nD1, $60, smpsNoAttack, $60, nRst, $06
-	smpsModSetS3K          $00, $00, $00, $00
+	smpsModSet          $00, $00, $00, $00
 	smpsPSGAlterVol     $03
 	smpsAlterNote       $00
 	dc.b	nCs4, $0C, nA3, nCs4, nA3, nCs4, nA3, nCs4, nA3, nCs4, nA3, nCs4
@@ -264,7 +264,7 @@ Snd_Title_PSG3:
 	dc.b	nFs4, nB4, nAb4, nCs5
 	smpsPSGAlterVol     $FF
 	dc.b	nA4, nD5, nB4, nE5, $03
-	smpsModSetS3K          $15, $01, $03, $06
+	smpsModSet          $15, $01, $03, $06
 	smpsPSGAlterVol     $FF
 	smpsJump            Snd_Title_Jump00
 
