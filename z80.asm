@@ -132,6 +132,17 @@ z1upBackupSz = 10*zTrackSz+18h		; ... specifically, this value
 
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
+; (rst 08) Subroutine to bankswitch to sound bank
+; ---------------------------------------------------------------------------
+	pad	00008h	
+; ---------------------------------------------------------------------------
+
+zBankSwitchToSound:
+	ld	a,zmake68kBank(SoundIndex)
+	jp	zBankSwitch
+
+; ===========================================================================
+; ---------------------------------------------------------------------------
 ; (rst 10) Subroutine to check which part of the YM2612 needs writing to
 ; ---------------------------------------------------------------------------
 	pad	00010h	
@@ -226,8 +237,7 @@ zUpdateEverything:
 	call	zUpdateMusic
 
 	; Now all of the SFX tracks are updated in a similar manner to "zUpdateMusic"...	
-	ld	a,zmake68kBank(SoundIndex)
-	call	zBankSwitch
+	rst	zBankSwitchToSound
 
 	ld	a,080h					; set the SFX playing flag
 	ld	(RunningSFX),a			; Set zDoSFXFlag = 80h (updating sound effects)
@@ -1142,8 +1152,7 @@ loc_5CD:				; CODE XREF: zPauseMusicj
 	ld	ix, zTracksStart
 	ld	b, 7
 	call	sub_5FA
-	ld	a,zmake68kBank(SoundIndex)	; Now for SFX
-	call	zBankSwitch
+	rst	zBankSwitchToSound	; Now for SFX
 	ld	ix, zTracksSFXStart
 	ld	b, 3
 	call	sub_5FA
@@ -1611,8 +1620,7 @@ zPlaySound_CheckGloop:				; CODE XREF: zPlaySoundByIndex+247j
 	ld	(byte_11AC), a
 
 loc_8C5:				; CODE XREF: zPlaySoundByIndex+255j zPlaySoundByIndex+25Bj
-	ld	a,zmake68kBank(SoundIndex)
-	call	zBankSwitch
+	rst	zBankSwitchToSound
 	ld	hl, 8000h
 	ld	a, c
 	sub	0A0h ; ' '
@@ -2728,8 +2736,7 @@ loc_E75:				; DATA XREF: ROM:0E72w
 	set	1, (ix+zTrackPlaybackControl)
 	ld	a, (ix+zTrackVoiceIndex)
 	call	zSetVoiceMusic
-	ld	a,zmake68kBank(SoundIndex)
-	call	zBankSwitch
+	rst	zBankSwitchToSound
 
 loc_EA0:				; CODE XREF: ROM:0E7Dj
 	pop	ix
