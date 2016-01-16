@@ -1026,7 +1026,7 @@ loc_52B:				; CODE XREF: zPSGDoNoteOn+23j
 	ld	a, l
 	and	0Fh
 	or	b
-	ld	(7F11h), a
+	ld	(zPSG), a
 	ld	a, l
 	srl	h
 	rra
@@ -1035,7 +1035,7 @@ loc_52B:				; CODE XREF: zPSGDoNoteOn+23j
 	rra
 	rra
 	and	3Fh ; '?'
-	ld	(7F11h), a
+	ld	(zPSG), a
 	ret
 ; ---------------------------------------------------------------------------
 
@@ -1109,7 +1109,7 @@ loc_588:				; CODE XREF: zDoFlutterAdvance+1Aj zDoFlutterAdvance+20j
 	ld	a, (ix+zTrackVoiceControl)
 	or	b
 	add	a, 10h
-	ld	(7F11h), a
+	ld	(zPSG), a
 	ret
 ; ---------------------------------------------------------------------------
 
@@ -1150,11 +1150,11 @@ zPSGNoteOff:				; CODE XREF: zNoteFillUpdate+12j ROM:0501j ...
 	or	a					; Is it an actual PSG channel?
 	ret	p					; Branch if not
 	or	1Fh					; Set volume to zero on PSG channel
-	ld	(7F11h), a				; Silence this channel
+	ld	(zPSG), a				; Silence this channel
 	cp	0DFh					; Is this a noise channel?
 	ret	nz					; Return if not
 	ld	a, 0FFh					; Command to silence PSG3/Noise channel
-	ld	(7F11h), a				; Do it
+	ld	(zPSG), a				; Do it
 	ret
 ; End of function zPSGNoteOff	
 ;                 |a| |1Fh|
@@ -1163,7 +1163,7 @@ zPSGNoteOff:				; CODE XREF: zNoteFillUpdate+12j ROM:0501j ...
 ; VOL3    0xd0	= 110 1xxxx	vol 4b
 	
 zSilencePSG:			
-	ld	hl, 7F11h
+	ld	hl, zPSG
 	ld	(hl), 9Fh
 	ld	(hl), 0BFh
 	ld	(hl), 0DFh
@@ -1698,9 +1698,9 @@ loc_901:				; CODE XREF: zPlaySoundByIndex+29Aj
 	jr	nz, loc_914
 	push	af
 	or	1Fh
-	ld	(7F11h), a
+	ld	(zPSG), a
 	xor	20h ; ' '
-	ld	(7F11h), a
+	ld	(zPSG), a
 	pop	af
 
 loc_914:				; CODE XREF: zPlaySoundByIndex+2A8j
@@ -1835,7 +1835,7 @@ loc_9D1:				; DATA XREF: zStopSoundEffects+51w
 	cp	0E0h ; 'à'
 	jr	nz, loc_9EA
 	ld	a, (ix+zTrackPSGNoise)
-	ld	(7F11h), a
+	ld	(zPSG), a
 
 loc_9EA:				; CODE XREF: zStopSoundEffects+65j
 	pop	ix
@@ -2799,7 +2799,7 @@ loc_EB2:				; DATA XREF: ROM:0EAFw
 	cp	0E0h ; 'à'
 	jr	nz, loc_ECB
 	ld	a, (ix+zTrackPSGNoise)
-	ld	(7F11h), a
+	ld	(zPSG), a
 
 loc_ECB:				; CODE XREF: ROM:0EC3j
 	pop	ix
@@ -2821,7 +2821,7 @@ cfSetPSGNoise:				; CODE XREF: ROM:0C36j
 	ld	(ix+zTrackPSGNoise), a
 	bit	2, (ix+zTrackPlaybackControl)
 	ret	nz
-	ld	(7F11h), a
+	ld	(zPSG), a
 	ret
 
 ; ===========================================================================
