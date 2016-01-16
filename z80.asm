@@ -277,7 +277,7 @@ zUpdateEverything:
 	ld	(RunningSFX),a			; Set zDoSFXFlag = 80h (updating sound effects)
 
 	; FM SFX channels
-	ld	b,003h					; set number of SFX FM channels to read
+	ld	b,(zSFXFMEnd-zSFXFMStart)/zTrackSz	; set number of SFX FM channels to read
 
 loc_C7:
 	push	bc					; store counter
@@ -289,7 +289,7 @@ loc_C7:
 	djnz	loc_C7
 
 	; PSG SFX channels	
-	ld	b,003h					; set number of SFX PSG channels to read
+	ld	b,(zSFXPSGEnd-zSFXPSGStart)/zTrackSz	; set number of SFX PSG channels to read
 
 loc_D9:
 	push	bc					; store counter
@@ -468,7 +468,7 @@ zUpdateMusic:
 	call	nz,DAC_Run				; if so, run DAC routine
 	xor	a					; clear the DAC channel running flag
 	ld	(zDACUpdating),a				; ''
-	ld	b,006h					; set number of BGM FM channels to check
+	ld	b,(zSongFMEnd-zSongFMStart)/zTrackSz	; set number of BGM FM channels to check
 
 TR_NextFM:
 	push	bc					; store counter
@@ -479,7 +479,7 @@ TR_NextFM:
 	pop	bc					; restore counter
 	djnz	TR_NextFM				; repeat for all FM channels
 	
-	ld	b,003h					; set number of PSG channels to check
+	ld	b,(zSongPSGEnd-zSongPSGStart)/zTrackSz					; set number of PSG channels to check
 
 TR_NextPSG:
 	push	bc					; store counter
@@ -507,7 +507,7 @@ TempoWait:
 	; So if adding tempo value DID overflow, then we add 1 to all durations
 	ld	hl,zTracksSongStart+0Bh
 	ld	de,2Ah
-	ld	b,0Ah
+	ld	b,(zTrackSongEnd-zTrackSongStart)/zTrackSz
 TempoDelayLoop:
 	inc	(hl)
 	add	hl,de
@@ -1186,11 +1186,11 @@ zPauseMusic:				; CODE XREF: V_Int+13p
 loc_5CD:				; CODE XREF: zPauseMusicj
 	ld	(ix+zTrackDataPointerLow),	0
 	ld	ix, zSongFMDACStart
-	ld	b, 7
+	ld	b, (zSongFMDACEnd-zSongFMDACStart)/zTrackSz
 	call	sub_5FA
 	rst	zBankSwitchToSound	; Now for SFX
 	ld	ix, zSFXFMStart
-	ld	b, 3
+	ld	b, (zSongPSGEnd-zSongPSGStart)/zTrackSz
 	call	sub_5FA
 	ret
 ; End of function zPauseMusic
@@ -1389,14 +1389,14 @@ zPlayMusic:				; CODE XREF: zPlaySoundByIndex+Bj
 	jr	nz, zBGMLoad
 	ld	ix, zTracksSongStart
 	ld	de, 2Ah	; '*'
-	ld	b, 0Ah
+	ld	b, (zTracksSongEnd-zTracksSongStart)/zTrackSz
 
 loc_6F9:				; CODE XREF: zPlaySoundByIndex+A1j
 	res	2, (ix+zTrackPlaybackControl)
 	add	ix, de
 	djnz	loc_6F9
 	ld	ix, zTracksSFXStart
-	ld	b, 6
+	ld	b, (zTracksSFXEnd-zTracksSFXStart)/zTrackSz
 
 loc_707:				; CODE XREF: zPlaySoundByIndex+AFj
 	res	7, (ix+zTrackPlaybackControl)
@@ -1565,7 +1565,7 @@ loc_80D:				; CODE XREF: zPlaySoundByIndex+1E3j
 
 loc_845:				; CODE XREF: zPlaySoundByIndex+19Fj
 	ld	ix, zTracksSFXStart
-	ld	b, 6
+	ld	b, (zTracksSFXEnd-zTracksSFXStart)/zTrackSz
 	ld	de, 2Ah	; '*'
 
 loc_84E:				; CODE XREF: zPlaySoundByIndex+214j
@@ -1598,13 +1598,13 @@ loc_870:				; CODE XREF: zPlaySoundByIndex+1F4j
 	add	ix, de
 	djnz	loc_84E
 	ld	ix, zSongFMStart
-	ld	b, 6
+	ld	b, (zSongFMEnd-zSongFMStart)/zTrackSz
 
 loc_87A:				; CODE XREF: zPlaySoundByIndex+221j
 	call	sub_BAC
 	add	ix, de
 	djnz	loc_87A
-	ld	b, 3
+	ld	b, (zSongPSGEnd-zSongPSGStart)/zTrackSz
 
 loc_883:				; CODE XREF: zPlaySoundByIndex+22Aj
 	call	zPSGNoteOff
@@ -1785,7 +1785,7 @@ zloc_KillSFXPrio:				; CODE XREF: zPlaySoundByIndex+241j zStopSoundEffectsp
 zStopSoundEffects:				; CODE XREF: zPlaySoundByIndex:zFadeOutMusicp
 	call	zloc_KillSFXPrio
 	ld	ix, zTracksSFXStart
-	ld	b, 6
+	ld	b, (zTracksSFXEnd-zTracksSFXStart)/zTrackSz
 
 loc_986:				; CODE XREF: zStopSoundEffects+76j
 	push	bc
@@ -1881,7 +1881,7 @@ loc_A15:				; CODE XREF: zUpdateFadeout+4j
 	ld	(ix+zTrackKeyOffset),	3
 	push	ix
 	ld	ix, zSongFMStart
-	ld	b, 6
+	ld	b, (zSongFMEnd-zSongFMStart)/zTrackSz
 
 loc_A27:				; CODE XREF: zUpdateFadeout+38j
 	bit	7, (ix+zTrackPlaybackControl)
@@ -1901,7 +1901,7 @@ loc_A3E:				; CODE XREF: zUpdateFadeout+20j zUpdateFadeout+2Cj
 	ld	de, 2Ah	; '*'
 	add	ix, de
 	djnz	loc_A27
-	ld	b, 3
+	ld	b, (zSongPSGEnd-zSongPSGStart)/zTrackSz
 
 loc_A47:				; CODE XREF: zUpdateFadeout+60j
 	bit	7, (ix+zTrackPlaybackControl)
@@ -1999,7 +1999,7 @@ sub_AF4:				; CODE XREF: V_Int+1Cp
 	ld	(zTempoTimeout), a
 	ld	hl, zTracksSongStart+0Bh
 	ld	de, 2Ah	; '*'
-	ld	b, 0Ah
+	ld	b, (zTracksSongEnd-zTracksSongStart)/zTrackSz
 
 loc_B02:				; CODE XREF: sub_AF4+10j
 	inc	(hl)
@@ -2073,7 +2073,7 @@ loc_B54:				; CODE XREF: zUpdateFadeIn+Ej
 	ld	(ix+zTrackSetNoteFill), 2
 	push	ix
 	ld	ix, zSongFMStart
-	ld	b, 6
+	ld	b, (zSongFMEnd-zSongFMStart)/zTrackSz
 
 loc_B63:				; CODE XREF: zUpdateFadeIn+3Fj
 	bit	7, (ix+zTrackPlaybackControl)
@@ -2087,7 +2087,7 @@ loc_B71:				; CODE XREF: zUpdateFadeIn+30j
 	ld	de, 2Ah	; '*'
 	add	ix, de
 	djnz	loc_B63
-	ld	b, 3
+	ld	b, (zSongPSGEnd-zSongPSGStart)/zTrackSz
 
 loc_B7A:				; CODE XREF: zUpdateFadeIn+60j
 	bit	7, (ix+zTrackPlaybackControl)
@@ -2301,7 +2301,7 @@ cfFadeInToPrevious:				; CODE XREF: ROM:0BFAj
 	ld	a, 28h ; '('
 	sub	c
 	ld	c, a
-	ld	b, 6
+	ld	b, (zSongFMEnd-zSongFMStart)/zTrackSz
 	ld	ix, zSongFMStart
 
 loc_CAF:				; CODE XREF: ROM:0CD3j
@@ -2322,7 +2322,7 @@ loc_CCE:				; CODE XREF: ROM:0CB3j	ROM:0CC4j
 	ld	de, 2Ah	; '*'
 	add	ix, de
 	djnz	loc_CAF
-	ld	b, 3
+	ld	b, (zSongPSGEnd-zSongPSGStart)/zTrackSz
 
 loc_CD7:				; CODE XREF: ROM:0CF0j
 	bit	7, (ix+zTrackPlaybackControl)
@@ -2443,7 +2443,7 @@ cfSetTempoMod:				; CODE XREF: ROM:0C16j
 	push	ix
 	ld	ix, zTracksSongStart
 	ld	de, 2Ah	; '*'
-	ld	b, 0Ah
+	ld	b, (zTracksSongEnd-zTracksSongStart)/zTrackSz
 
 loc_D3F:				; CODE XREF: ROM:0D44j
 	ld	(ix+zTrackTempoDivider),	a
