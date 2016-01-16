@@ -2033,10 +2033,10 @@ zSetTempo:				; CODE XREF: zPlaySoundByIndex+4B2j zPlaySoundByIndex+4BFj
 ; ---------------------------------------------------------------------------
 
 loc_B2C:				; CODE XREF: zPlaySoundByIndex+4B4j zPlaySoundByIndex+4C1j
-	ld	(1E39h), a
-	ld	(1E38h), a
+	ld	(z1upBackup+zCurrentTempo), a
+	ld	(z1upBackup+zTempoTimeout), a
 	ld	a, b
-	ld	(1E4Bh), a
+	ld	(z1upBackup+zSpeedUpFlag), a
 	ret
 ; END OF FUNCTION CHUNK	FOR zPlaySoundByIndex
 
