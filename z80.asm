@@ -505,9 +505,9 @@ TempoWait:
 	ret	c						; If addition did not overflow (answer lower than 100h), return
 	
 	; So if adding tempo value DID overflow, then we add 1 to all durations
-	ld	hl,zTracksSongStart+0Bh
+	ld	hl,zTracksSongStart+zTrackDurationTimeout
 	ld	de,zTrackSz
-	ld	b,(zTrackSongEnd-zTrackSongStart)/zTrackSz
+	ld	b,(zTracksSongEnd-zTracksSongStart)/zTrackSz
 TempoDelayLoop:
 	inc	(hl)
 	add	hl,de
@@ -1997,7 +1997,7 @@ sub_AAE:				; CODE XREF: zPlaySoundByIndex:zBGMLoadp
 sub_AF4:				; CODE XREF: V_Int+1Cp
 	ld	a, (zCurrentTempo)
 	ld	(zTempoTimeout), a
-	ld	hl, zTracksSongStart+0Bh
+	ld	hl, zTracksSongStart+zTrackDurationTimeout
 	ld	de, zTrackSz	; '*'
 	ld	b, (zTracksSongEnd-zTracksSongStart)/zTrackSz
 
