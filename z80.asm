@@ -583,11 +583,11 @@ DAC_NextNote:
 DAC_NoFlag:
 	or	a					; is the ID a timer?
 	jp	p,DAC_UpdateTimer			; if so, branch
-	ld	(ix+0Dh),a				; otherwise update the note ID
+	ld	(ix+zTrackSavedDAC),a			; otherwise update the note ID
 	ld	a,(hl)					; load next note
 	or	a					; is it another note?
 	jp	p,DAC_NewTimer				; if not, branch
-	ld	a,(ix+0Ch)				; otherwise load previous note
+	ld	a,(ix+zTrackSavedDuration)		; otherwise load previous note
 	ld	(ix+zTrackDurationTimeout),a				; set as current note timer
 	jp	DAC_UpdateSample			; continue
 
@@ -602,7 +602,7 @@ DAC_UpdateSample:
 	ld	(ix+zTrackDataPointerHigh),h				; ''
 	bit	2,(ix+zTrackPlaybackControl)
 	ret	nz
-	ld	a,(ix+0Dh)				; load note
+	ld	a,(ix+zTrackSavedDAC)			; load note
 	cp	080h					; is it a rest note?
 	ret	z					; if so, return
 	sub	081h					; subtract starting ID
@@ -729,7 +729,7 @@ TR_SetTimer:
 
 TR_ST_Count:
 	djnz	TR_ST_Multiply				; multiply timer by tempo amount
-	ld	(ix+0Ch),a				; update timer
+	ld	(ix+zTrackSavedDuration),a				; update timer
 	ld	(ix+zTrackDurationTimeout),a				; update current timer
 	ret						; return
 
@@ -827,7 +827,7 @@ zFreqFlutterSetIndex:
 	ld	l, (ix+zTrackFreqFlutterSens)
 	ld	h, (ix+zTrackModulationValHigh)
 	ld	b, 0
-	ld	c, (ix+15h)
+	ld	c, (ix+zTrackFreqFlutterIndex)
 	bit	7, c
 	jp	z, loc_30B
 	;cp	82h								; Is it 82h?
