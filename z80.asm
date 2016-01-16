@@ -110,8 +110,8 @@ zMusicBankNumber = zVariablesStart+16h
 zIsPalFlag =	zVariablesStart+17h	; I think this flags if system is PAL
 zVariablesEnd =	zVariablesStart+18h
 
-zTracksStart =	zVariablesEnd	; This is the beginning of all BGM track memory
-zSongFMDACStart = zTracksStart+(zTrackSz*0)
+zTracksSongStart =	zVariablesEnd	; This is the beginning of all BGM track memory
+zSongFMDACStart = zTracksSongStart+(zTrackSz*0)
 zSongDAC =	zSongFMDACStart+(zTrackSz*0)
 zSongFMStart =	zSongFMDACStart+(zTrackSz*1)
 zSongFM1 =	zSongFMStart+(zTrackSz*0)
@@ -127,9 +127,9 @@ zSongPSG1 =	zSongPSGStart+(zTrackSz*0)
 zSongPSG2 =	zSongPSGStart+(zTrackSz*1)
 zSongPSG3 =	zSongPSGStart+(zTrackSz*2)
 zSongPSGEnd =	zSongPSGStart+(zTrackSz*3)
-zTracksEnd =	zSongPSGEnd
+zTracksSongEnd =	zSongPSGEnd
 
-zTracksSFXStart =	zTracksEnd	; This is the beginning of all BGM track memory
+zTracksSFXStart =	zTracksSongEnd	; This is the beginning of all BGM track memory
 zSFXFMStart =	zTracksSFXStart+(zTrackSz*0)
 zSFXFM3 =	zSFXFMStart+(zTrackSz*0)
 zSFXFM4 =	zSFXFMStart+(zTrackSz*1)
@@ -462,7 +462,7 @@ zUpdateMusic:
 	; DAC updates
 	ld	a,0FFh					; set the DAC channel running flag
 	ld	(zDACUpdating),a				; ''
-	ld	ix,zTracksStart				; load start of channel RAM
+	ld	ix,zTracksSongStart				; load start of channel RAM
 	bit	7,(ix+zTrackPlaybackControl)				; is the DAC channel running?
 	call	nz,DAC_Run				; if so, run DAC routine
 	xor	a					; clear the DAC channel running flag
@@ -504,7 +504,7 @@ TempoWait:
 	ret	c						; If addition did not overflow (answer lower than 100h), return
 	
 	; So if adding tempo value DID overflow, then we add 1 to all durations
-	ld	hl,zTracksStart+0Bh
+	ld	hl,zTracksSongStart+0Bh
 	ld	de,2Ah
 	ld	b,0Ah
 TempoDelayLoop:
@@ -541,23 +541,25 @@ InitDriver:
 ; ===========================================================================
 	pad 	10h
 zMusicTrackOffs:	
-	dw zTracksStart+(zTrackSz*3)		; DATA XREF: zPlaySoundByIndex:loc_86Br
-	dw 0000h
-	dw zTracksStart+(zTrackSz*4)	; ?
-	dw zTracksStart+(zTrackSz*5)	; i
-	dw zTracksStart+(zTrackSz*7)	; ½
-	dw zTracksStart+(zTrackSz*8)	; ç
-	dw zTracksStart+(zTrackSz*9)
-	dw zTracksStart+(zTrackSz*9)
+	dw	zSongFM3
+	dw	0000h
+	dw	zSongFM4
+	dw	zSongFM5
+	dw	zSongPSG1
+	dw	zSongPSG2
+	dw	zSongPSG3
+	dw	zSongPSG3	; PSG4/Noise
+
 	pad 	10h
-zSFXTrackOffs:	dw zTracksSFXStart+(zTrackSz*0)		; DATA XREF: zPlaySoundByIndex:loc_929r
-	dw 0000h
-	dw zTracksSFXStart+(zTrackSz*1)	; e
-	dw zTracksSFXStart+(zTrackSz*2)	; 
-	dw zTracksSFXStart+(zTrackSz*3)	; ¹
-	dw zTracksSFXStart+(zTrackSz*4)	; ã
-	dw zTracksSFXStart+(zTrackSz*5)
-	dw zTracksSFXStart+(zTrackSz*5)
+zSFXTrackOffs:
+	dw	zSFXFM3
+	dw	0000h
+	dw	zSFXFM4
+	dw	zSFXFM5
+	dw	zSFXPSG1
+	dw	zSFXPSG2
+	dw	zSFXPSG3
+	dw	zSFXPSG3	; PSG4/Noise
 
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
@@ -1182,11 +1184,11 @@ zPauseMusic:				; CODE XREF: V_Int+13p
 
 loc_5CD:				; CODE XREF: zPauseMusicj
 	ld	(ix+zTrackDataPointerLow),	0
-	ld	ix, zTracksStart
+	ld	ix, zSongFMDACStart
 	ld	b, 7
 	call	sub_5FA
 	rst	zBankSwitchToSound	; Now for SFX
-	ld	ix, zTracksSFXStart
+	ld	ix, zSFXFMStart
 	ld	b, 3
 	call	sub_5FA
 	ret
@@ -1384,7 +1386,7 @@ zPlayMusic:				; CODE XREF: zPlaySoundByIndex+Bj
 	ld	a, (z1upPlaying)
 	or	a
 	jr	nz, zBGMLoad
-	ld	ix, zTracksStart
+	ld	ix, zTracksSongStart
 	ld	de, 2Ah	; '*'
 	ld	b, 0Ah
 
@@ -1465,7 +1467,7 @@ loc_779:				; CODE XREF: zPlaySoundByIndex+116j
 	jp	z, loc_7F9
 	ld	b, a
 	push	iy
-	ld	iy, zTracksStart
+	ld	iy, zSongFMDACStart
 	ld	c, (ix+4)
 	ld	de, zFMDACInitBytes
 
@@ -1527,7 +1529,7 @@ loc_7F9:				; CODE XREF: zPlaySoundByIndex+12Cj
 	jp	z, loc_845
 	ld	b, a
 	push	iy
-	ld	iy, zSongPSG1
+	ld	iy, zSongPSGStart
 	ld	c, (ix+4)
 	ld	de, zPSGInitBytes
 
@@ -1594,7 +1596,7 @@ loc_86B:				; DATA XREF: zPlaySoundByIndex+20Aw
 loc_870:				; CODE XREF: zPlaySoundByIndex+1F4j
 	add	ix, de
 	djnz	loc_84E
-	ld	ix, zSongFM1
+	ld	ix, zSongFMStart
 	ld	b, 6
 
 loc_87A:				; CODE XREF: zPlaySoundByIndex+221j
@@ -1856,7 +1858,7 @@ zFadeOutMusic:				; CODE XREF: zPlaySoundByIndex+25j
 	ld	a, 28h ; '('
 	ld	(zFadeOutCounter), a
 	xor	a
-	ld	(zTracksStart), a
+	ld	(zSongDAC+zTrackPlaybackControl), a
 	ld	(zSpeedUpFlag), a
 	ret
 ; END OF FUNCTION CHUNK	FOR zPlaySoundByIndex
@@ -1877,7 +1879,7 @@ loc_A15:				; CODE XREF: zUpdateFadeout+4j
 	jp	z, zClearTrackPlaybackMem
 	ld	(ix+zTrackKeyOffset),	3
 	push	ix
-	ld	ix, zSongFM1
+	ld	ix, zSongFMStart
 	ld	b, 6
 
 loc_A27:				; CODE XREF: zUpdateFadeout+38j
@@ -1994,7 +1996,7 @@ sub_AAE:				; CODE XREF: zPlaySoundByIndex:zBGMLoadp
 sub_AF4:				; CODE XREF: V_Int+1Cp
 	ld	a, (zCurrentTempo)
 	ld	(zTempoTimeout), a
-	ld	hl, zTracksStart+0Bh
+	ld	hl, zTracksSongStart+0Bh
 	ld	de, 2Ah	; '*'
 	ld	b, 0Ah
 
@@ -2057,9 +2059,9 @@ loc_B41:				; CODE XREF: zUpdateFadeIn+4j
 	ld	a, (zFadeInCounter)
 	or	a
 	jr	nz, loc_B54
-	ld	a, (zTracksStart)
+	ld	a, (zSongDAC+zTrackPlaybackControl)
 	and	0FBh ; 'û'
-	ld	(zTracksStart), a
+	ld	(zSongDAC+zTrackPlaybackControl), a
 	xor	a
 	ld	(zFadeInFlag), a
 	ret
@@ -2069,7 +2071,7 @@ loc_B54:				; CODE XREF: zUpdateFadeIn+Ej
 	dec	(ix+zTrackResetNoteFill)
 	ld	(ix+zTrackSetNoteFill), 2
 	push	ix
-	ld	ix, zSongFM1
+	ld	ix, zSongFMStart
 	ld	b, 6
 
 loc_B63:				; CODE XREF: zUpdateFadeIn+3Fj
@@ -2290,16 +2292,16 @@ cfFadeInToPrevious:				; CODE XREF: ROM:0BFAj
 	ld	bc, 1BBh
 	ldir
 	call	SetMusicBanks				; set the bank address
-	ld	a, (zTracksStart)
+	ld	a, (zSongDAC+zTrackPlaybackControl)
 	or	4
-	ld	(zTracksStart), a
+	ld	(zSongDAC+zTrackPlaybackControl), a
 	ld	a, (zFadeInCounter)
 	ld	c, a
 	ld	a, 28h ; '('
 	sub	c
 	ld	c, a
 	ld	b, 6
-	ld	ix, zSongFM1
+	ld	ix, zSongFMStart
 
 loc_CAF:				; CODE XREF: ROM:0CD3j
 	bit	7, (ix+zTrackPlaybackControl)
@@ -2438,7 +2440,7 @@ cfSetTempo:				; CODE XREF: ROM:0C12j
 
 cfSetTempoMod:				; CODE XREF: ROM:0C16j
 	push	ix
-	ld	ix, zTracksStart
+	ld	ix, zTracksSongStart
 	ld	de, 2Ah	; '*'
 	ld	b, 0Ah
 
