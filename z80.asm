@@ -73,6 +73,7 @@ zTrackCSFXPointerHigh	= 1Dh
 zTrackTLPtrLow     		= 1Eh
 zTrackTLPtrHigh			= 1Fh
 zTrackLoopCounters		= 20h
+zTrackStack		= 2Ah
 ; ===========================================================================
 zYM2612_A0 =	4000h
 zYM2612_D0 =	4001h
@@ -1478,7 +1479,7 @@ loc_79A:				; CODE XREF: zPlaySoundByIndex+16Ej
 	inc	de
 	ld	(iy+zTrackVoiceControl),	a
 	ld	(iy+zTrackTempoDivider),	c
-	ld	(iy+zTrackStackPointer), zTrackSz ;	'*'
+	ld	(iy+zTrackStackPointer), zTrackStack ;	'*'
 	ld	(iy+zTrackAMSFMSPan),	0C0h ; 'À'
 	ld	(iy+zTrackDurationTimeout), 1
 	push	de
@@ -1540,7 +1541,7 @@ loc_80D:				; CODE XREF: zPlaySoundByIndex+1E3j
 	inc	de
 	ld	(iy+zTrackVoiceControl),	a
 	ld	(iy+zTrackTempoDivider),	c
-	ld	(iy+zTrackStackPointer), zTrackSz ;	'*'
+	ld	(iy+zTrackStackPointer), zTrackStack ;	'*'
 	ld	(iy+zTrackDurationTimeout), 1
 	push	de
 	push	bc
@@ -1739,7 +1740,7 @@ loc_929:				; DATA XREF: zPlaySoundByIndex+2C8w
 	push	bc
 	ld	(ix+zTrackTempoDivider),	c
 	ld	(ix+zTrackDurationTimeout), 1
-	ld	(ix+zTrackStackPointer), zTrackSz	; '*'
+	ld	(ix+zTrackStackPointer), zTrackStack	; '*'
 	ld	a, e
 	add	a, 1
 	ld	e, a
