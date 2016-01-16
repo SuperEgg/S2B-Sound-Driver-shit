@@ -253,10 +253,10 @@ zUpdateEverything:
 	or	(ix+zTrackStackPointer)
 	or	(ix+zTrackDurationTimeout)
 	call	nz, zCycleQueue
+	; Apparently if this is 00h, it does not play anything new,
+	; otherwise it cues up the next play (flag from 68K for new item)		
 	ld	a,(zQueueToPlay)
-; Apparently if this is 80h, it does not play anything new,
-; otherwise it cues up the next play (flag from 68K for new item)		
-	cp	080h
+	or	a
 	call	nz,zPlaySoundByIndex
 
 	ld	hl,zPalModeByte
@@ -1222,7 +1222,7 @@ loc_619:				; CODE XREF: sub_5FA+4j sub_5FA+Aj
 
 zCycleQueue:				; CODE XREF: V_Int+36p
 	ld	a, (zQueueToPlay)
-	cp	80h ; '€'
+	or	a ; '€'
 	ret	nz
 	ld	hl, zSFXToPlay
 	ld	a, (zSFXPriorityVal)
@@ -1277,13 +1277,10 @@ loc_65B:				; CODE XREF: zCycleQueue+16j
 ; Subroutine to play
 ; ---------------------------------------------------------------------------
 
-zPlaySoundByIndex:				; CODE XREF: V_Int+3Ep
-
-	or	a
-	jp	z, zClearTrackPlaybackMem		
+zPlaySoundByIndex:				; CODE XREF: V_Int+3Ep		
 	cp	FirstSong-1
 	ret	c		; return if id is less than the first music id
-	ld	(ix+zTrackVoiceIndex),	80h ; '€'
+	ld	(ix+zTrackVoiceIndex),	0 ; '€'
 	
 	cp	0A0h ; ' '
 	jp	c, zPlayMusic
@@ -1334,7 +1331,6 @@ zPlaySegaSound:				; CODE XREF: zPlaySoundByIndex+29j
 	ld	de, 30BAh
 	ld	a, 2Ah ; '*'
 	ld	(zYM2612_A0), a
-	ld	c, 80h ; '€'
 
 loc_6B8:				; CODE XREF: zPlaySoundByIndex+77j
 	ld	a, (hl)
@@ -1346,7 +1342,7 @@ loc_6B8:				; CODE XREF: zPlaySoundByIndex+77j
 loc_6C0:				; CODE XREF: zPlaySoundByIndex:loc_6C0j
 	djnz	$
 	ld	a, (zQueueToPlay)
-	cp	c
+	or	a
 	jr	nz, loc_6D8
 	ld	a, (hl)
 	ld	(zYM2612_D0), a
@@ -1984,7 +1980,7 @@ sub_AAE:				; CODE XREF: zPlaySoundByIndex:zBGMLoadp
 	pop	bc
 	ld	(ix+zTrackPlaybackControl),	b
 	ld	(ix+zTrackModulationPtrLow), c
-	ld	a, 80h ; '€'
+	xor	a
 	ld	(zQueueToPlay), a
 	call	zSilenceFM
 	jp	zSilencePSG
@@ -2956,7 +2952,7 @@ loc_1092:
 	ld	(hl),000h
 	ld	bc,(zTracksSFXEnd-zVariablesStart)-2
 	ldir
-	ld	a,080h
+	xor	a
 	ld	(zQueueToPlay),a
 	call	zSilenceFM
 	jp	zSilencePSG

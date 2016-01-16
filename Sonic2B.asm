@@ -829,7 +829,7 @@ loc_129A:
 loc_12AC:
 		lea     ($00FFFFE0),A0
 		lea	($00A01B80),A1
-		cmpi.b  #$80,$0008(A1)
+		tst.b   $0008(A1)
 		bne.s   loc_12E0
 		move.b	$0000(A0),D0
 		beq.s   loc_12E0
