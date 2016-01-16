@@ -25,39 +25,8 @@ pad		macro	Offset
 	endm
 	endm
 
+zmake68kBank function addr,(((addr&3F8000h)/zROMWindow))
 
-bankswitch macro addr68k
-	xor	a	; a = 0
-	ld	e,1	; e = 1
-	ld	hl,6000h
-cnt	:= 0
-	rept 9
-		; this is either ld (hl),a or ld (hl),e
-		db (73h|((((addr68k)&(1<<(15+cnt)))==0)<<2))
-cnt		:= (cnt+1)
-	endm
-    endm
-bankswitch1 macro
-		ld	hl, 6000h
-		ld	(hl), a
-		rept 7
-			rrca
-			ld	(hl), a
-		endm
-		xor	a
-		ld	(hl), a
-	endm
-
-bankswitch2 macro
-		ld	hl, 6000h
-		ld	(hl), a
-		rept 7
-			rra
-			ld	(hl), a
-		endm
-		xor	a
-		ld	(hl), a
-	endm
 ; ===========================================================================
 zTrackPlaybackControl	= 0
 zTrackVoiceControl		= 1
@@ -257,8 +226,9 @@ zUpdateEverything:
 	call	zUpdateMusic
 
 	; Now all of the SFX tracks are updated in a similar manner to "zUpdateMusic"...	
-	bankswitch   SoundIndex
-	
+	ld	a,zmake68kBank(SoundIndex)
+	call	zBankSwitch
+
 	ld	a,080h					; set the SFX playing flag
 	ld	(RunningSFX),a			; Set zDoSFXFlag = 80h (updating sound effects)
 
@@ -1172,7 +1142,8 @@ loc_5CD:				; CODE XREF: zPauseMusicj
 	ld	ix, zTracksStart
 	ld	b, 7
 	call	sub_5FA
-	bankswitch SoundIndex	; Now for SFX
+	ld	a,zmake68kBank(SoundIndex)	; Now for SFX
+	call	zBankSwitch
 	ld	ix, zTracksSFXStart
 	ld	b, 3
 	call	sub_5FA
@@ -1311,7 +1282,8 @@ zPlaySegaSound:				; CODE XREF: zPlaySoundByIndex+29j
 	ld	c, 80h ; '€'
 	rst	zWriteFMI ; Sega sound
 	
-	bankswitch Snd_Sega	; Want Sega sound
+	ld	a,zmake68kBank(Snd_Sega)	; Want Sega sound
+	call	zBankSwitch
 	
 	ld	hl, 8000h
 	ld	de, 30BAh
@@ -1639,7 +1611,8 @@ zPlaySound_CheckGloop:				; CODE XREF: zPlaySoundByIndex+247j
 	ld	(byte_11AC), a
 
 loc_8C5:				; CODE XREF: zPlaySoundByIndex+255j zPlaySoundByIndex+25Bj
-	bankswitch SoundIndex
+	ld	a,zmake68kBank(SoundIndex)
+	call	zBankSwitch
 	ld	hl, 8000h
 	ld	a, c
 	sub	0A0h ; ' '
@@ -2132,6 +2105,8 @@ sub_BAC:				; CODE XREF: FM_Tracker+17p zNoteFillUpdate+15j ...
 ; Subroutine to set the bank address to 68k offset 0F0000 or 0F8000
 ; ---------------------------------------------------------------------------
 
+SetMusicBanks:
+	ld	a, (zSongBank)					; Get bank ID for music
 zBankSwitch:
 	ld	hl,zBankRegister
 	ld	(hl), a
@@ -2147,17 +2122,6 @@ zBankSwitch:
 ; ===========================================================================
 
 ; =============== S U B	R O U T	I N E =======================================
-; ===========================================================================
-; ---------------------------------------------------------------------------
-; Subroutine to set the bank address to 68k offset 0F0000 or 0F8000
-; ---------------------------------------------------------------------------
-
-SetMusicBanks:
-	ld	a, (zSongBank)					; Get bank ID for music
-	bankswitch2							; Bank switch to it	
-	ret						; Bank switch to it	
-
-; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Flags E0 - F9
 ; ---------------------------------------------------------------------------
@@ -2764,7 +2728,8 @@ loc_E75:				; DATA XREF: ROM:0E72w
 	set	1, (ix+zTrackPlaybackControl)
 	ld	a, (ix+zTrackVoiceIndex)
 	call	zSetVoiceMusic
-	bankswitch SoundIndex
+	ld	a,zmake68kBank(SoundIndex)
+	call	zBankSwitch
 
 loc_EA0:				; CODE XREF: ROM:0E7Dj
 	pop	ix
