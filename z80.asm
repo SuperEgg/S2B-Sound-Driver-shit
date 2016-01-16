@@ -1,23 +1,9 @@
 	cpu 68000
 	padding off
 	listing purecode
+	page	0	; Don't want form feeds
 	supmode on
 	include "DisassemblySettings.asm"
-; ===========================================================================
-; ---------------------------------------------------------------------------
-; "Sonic 2 beta" Sound Driver
-; ---------------------------------------------------------------------------
-; AS crap
-; ---------------------------------------------------------------------------
-
-	cpu z80						; Assemble z80 functions
-	listing purecode					; Turn off listings
-	phase	0					; Set offset to $0000
-	cpu 68000
-	padding off
-	listing off
-	supmode on
-
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; "Sonic 2 beta" Sound Driver
