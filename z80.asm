@@ -707,14 +707,14 @@ loc_254:
 	ld	d, a			; h = high bits of frequency (including octave bits)
 	pop	af
 	ex	af, af'			; Exchange af with af'
-	ld	(ix+0Dh), e
+	ld	(ix+zTrackFreqLow), e
 	ld	(ix+zTrackFreqHigh), d
 	ret
 
 zFMDoRest:
 	set	1, (ix+zTrackPlaybackControl)
 	xor	a
-	ld	(ix+0Dh), a
+	ld	(ix+zTrackFreqLow), a
 	ld	(ix+zTrackFreqHigh), a
 	ret
 
@@ -842,7 +842,7 @@ loc_30B:				; CODE XREF: zDoModulation+49j
 	add	hl, bc
 	ld	(ix+zTrackFreqFlutterSens), l
 	ld	(ix+zTrackModulationValHigh), h
-	ld	c, (ix+0Dh)
+	ld	c, (ix+zTrackFreqLow)
 	ld	b, (ix+zTrackFreqHigh)
 	add	hl, bc
 	ex	de, hl
@@ -888,7 +888,7 @@ zPSGFrequencies:
 zFMPrepareNote:				; CODE XREF: FM_Run+Cp
 	bit	1, (ix+zTrackPlaybackControl)
 	ret	nz
-	ld	e, (ix+0Dh)
+	ld	e, (ix+zTrackFreqLow)
 	ld	d, (ix+zTrackFreqHigh)
 	ld	a, d
 	or	e
@@ -995,7 +995,7 @@ zPSGSetFreq:				; CODE XREF: zPSGDoNext+1Ap
 	
 loc_4EA:				; DATA XREF: ROM:04E7w
 	ld	de, (zPSGFrequencies)
-	ld	(ix+0Dh), e
+	ld	(ix+zTrackFreqLow), e
 	ld	(ix+zTrackFreqHigh), d
 	ret
 ; ---------------------------------------------------------------------------
@@ -1003,7 +1003,7 @@ loc_4EA:				; DATA XREF: ROM:04E7w
 loc_4F5:				; CODE XREF: ROM:04DFj
 	set	1, (ix+zTrackPlaybackControl)
 	ld	a, 0FFh
-	ld	(ix+0Dh), a
+	ld	(ix+zTrackFreqLow), a
 	ld	(ix+zTrackFreqHigh), a
 	jp	zPSGNoteOff
 
@@ -1013,7 +1013,7 @@ loc_4F5:				; CODE XREF: ROM:04DFj
 zPSGDoNoteOn:				; CODE XREF: PSG_Run+Cp
 	bit	7, (ix+zTrackFreqHigh)
 	jr	nz, loc_542
-	ld	e, (ix+0Dh)
+	ld	e, (ix+zTrackFreqLow)
 	ld	d, (ix+zTrackFreqHigh)
 
 zPSGUpdateFreq:				; CODE XREF: PSG_Run+1Bj
@@ -1292,7 +1292,7 @@ loc_65B:				; CODE XREF: zCycleQueue+16j
 zPlaySoundByIndex:				; CODE XREF: V_Int+3Ep		
 	cp	FirstSong-1
 	ret	c		; return if id is less than the first music id
-	ld	(ix+zTrackVoiceIndex), 0 ; '€'
+	ld	(ix+zQueueToPlay), 0 ; '€'
 	
 	cp	0A0h ; ' '
 	jp	c, zPlayMusic
@@ -1636,9 +1636,9 @@ zPSGInitBytes:
 
 loc_895:				; CODE XREF: zPlaySoundByIndex+13j
 	ld	c, a
-	ld	a, (ix+zTrackModulationPtrLow)
-	or	(ix+zTrackDataPointerHigh)
-	or	(ix+zTrackFreqHigh)
+	ld	a, (ix+z1upPlaying)
+	or	(ix+zFadeOutCounter)
+	or	(ix+zFadeInFlag)
 	jp	nz, zloc_KillSFXPrio
 	ld	a, c
 	cp	0B5h ; 'µ'
