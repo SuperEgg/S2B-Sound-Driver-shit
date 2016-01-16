@@ -281,7 +281,7 @@ zUpdateEverything:
 
 loc_C7:
 	push	bc					; store counter
-	ld	de,02Ah					; prepare channel size
+	ld	de,zTrackSz				; prepare channel size
 	add	ix,de					; advance to next channel's RAM
 	bit	7,(ix+zTrackPlaybackControl)				; is the channel running?
 	call	nz,FM_Run				; if so, run FM routine
@@ -293,7 +293,7 @@ loc_C7:
 
 loc_D9:
 	push	bc					; store counter
-	ld	de,02Ah					; prepare channel size
+	ld	de,zTrackSz				; prepare channel size
 	add	ix,de					; advance to next channel's RAM
 	bit	7,(ix+zTrackPlaybackControl)				; is the channel running?
 	call	nz,PSG_Run				; if so, run PSG routine
@@ -472,7 +472,7 @@ zUpdateMusic:
 
 TR_NextFM:
 	push	bc					; store counter
-	ld	de,02Ah					; prepare channel size
+	ld	de,zTrackSz				; prepare channel size
 	add	ix,de					; advance to next channel's RAM
 	bit	7,(ix+zTrackPlaybackControl)				; is the channel running?
 	call	nz,FM_Run				; if so, run FM routine
@@ -483,7 +483,7 @@ TR_NextFM:
 
 TR_NextPSG:
 	push	bc					; store counter
-	ld	de,02Ah					; prepare channel size
+	ld	de,zTrackSz				; prepare channel size
 	add	ix,de					; advance to next channel's RAM
 	bit	7,(ix+zTrackPlaybackControl)				; is the channel running?
 	call	nz,PSG_Run				; if so, run PSG routine
@@ -506,7 +506,7 @@ TempoWait:
 	
 	; So if adding tempo value DID overflow, then we add 1 to all durations
 	ld	hl,zTracksSongStart+0Bh
-	ld	de,2Ah
+	ld	de,zTrackSz
 	ld	b,(zTrackSongEnd-zTrackSongStart)/zTrackSz
 TempoDelayLoop:
 	inc	(hl)
@@ -1210,7 +1210,7 @@ sub_5FA:				; CODE XREF: zPauseMusic+1Cp zPauseMusic+34p ...
 	pop	bc
 
 loc_619:				; CODE XREF: sub_5FA+4j sub_5FA+Aj
-	ld	de, 2Ah	; '*'
+	ld	de, zTrackSz	; '*'
 	add	ix, de
 	djnz	sub_5FA
 	ret
@@ -1388,7 +1388,7 @@ zPlayMusic:				; CODE XREF: zPlaySoundByIndex+Bj
 	or	a
 	jr	nz, zBGMLoad
 	ld	ix, zTracksSongStart
-	ld	de, 2Ah	; '*'
+	ld	de, zTrackSz	; '*'
 	ld	b, (zTracksSongEnd-zTracksSongStart)/zTrackSz
 
 loc_6F9:				; CODE XREF: zPlaySoundByIndex+A1j
@@ -1491,7 +1491,7 @@ loc_79A:				; CODE XREF: zPlaySoundByIndex+16Ej
 	ld	d, a
 	ld	bc,4
 	ldir						; while (bc-- > 0) *de++ = *hl++; (copy track address, default key offset, default volume)
-	ld	de, 2Ah	; '*'
+	ld	de, zTrackSz	; '*'
 	add	iy, de
 	pop	bc
 	pop	de
@@ -1556,7 +1556,7 @@ loc_80D:				; CODE XREF: zPlaySoundByIndex+1E3j
 	ld	a, (hl)
 	inc	hl
 	ld	(iy+8),	a
-	ld	de, 2Ah	; '*'
+	ld	de, zTrackSz	; '*'
 	add	iy, de
 	pop	bc
 	pop	de
@@ -1566,7 +1566,7 @@ loc_80D:				; CODE XREF: zPlaySoundByIndex+1E3j
 loc_845:				; CODE XREF: zPlaySoundByIndex+19Fj
 	ld	ix, zTracksSFXStart
 	ld	b, (zTracksSFXEnd-zTracksSFXStart)/zTrackSz
-	ld	de, 2Ah	; '*'
+	ld	de, zTrackSz	; '*'
 
 loc_84E:				; CODE XREF: zPlaySoundByIndex+214j
 	bit	7, (ix+zTrackPlaybackControl)
@@ -1739,7 +1739,7 @@ loc_929:				; DATA XREF: zPlaySoundByIndex+2C8w
 	push	bc
 	ld	(ix+zTrackTempoDivider),	c
 	ld	(ix+zTrackDurationTimeout), 1
-	ld	(ix+zTrackStackPointer), 2Ah ;	'*'
+	ld	(ix+zTrackStackPointer), zTrackSz	; '*'
 	ld	a, e
 	add	a, 1
 	ld	e, a
@@ -1841,7 +1841,7 @@ loc_9EA:				; CODE XREF: zStopSoundEffects+65j
 	pop	ix
 
 loc_9EC:				; CODE XREF: zStopSoundEffects+Ej zStopSoundEffects+3Fj
-	ld	de, 2Ah	; '*'
+	ld	de, zTrackSz	; '*'
 	add	ix, de
 	pop	bc
 	dec	b
@@ -1898,7 +1898,7 @@ loc_A39:				; CODE XREF: zUpdateFadeout+25j
 	pop	bc
 
 loc_A3E:				; CODE XREF: zUpdateFadeout+20j zUpdateFadeout+2Cj
-	ld	de, 2Ah	; '*'
+	ld	de, zTrackSz	; '*'
 	add	ix, de
 	djnz	loc_A27
 	ld	b, (zSongPSGEnd-zSongPSGStart)/zTrackSz
@@ -1923,7 +1923,7 @@ loc_A5E:				; CODE XREF: zUpdateFadeout+4Aj
 	pop	bc
 
 loc_A66:				; CODE XREF: zUpdateFadeout+40j zUpdateFadeout+51j
-	ld	de, 2Ah	; '*'
+	ld	de, zTrackSz	; '*'
 	add	ix, de
 	djnz	loc_A47
 	pop	ix
@@ -1998,7 +1998,7 @@ sub_AF4:				; CODE XREF: V_Int+1Cp
 	ld	a, (zCurrentTempo)
 	ld	(zTempoTimeout), a
 	ld	hl, zTracksSongStart+0Bh
-	ld	de, 2Ah	; '*'
+	ld	de, zTrackSz	; '*'
 	ld	b, (zTracksSongEnd-zTracksSongStart)/zTrackSz
 
 loc_B02:				; CODE XREF: sub_AF4+10j
@@ -2084,7 +2084,7 @@ loc_B63:				; CODE XREF: zUpdateFadeIn+3Fj
 	pop	bc
 
 loc_B71:				; CODE XREF: zUpdateFadeIn+30j
-	ld	de, 2Ah	; '*'
+	ld	de, zTrackSz	; '*'
 	add	ix, de
 	djnz	loc_B63
 	ld	b, (zSongPSGEnd-zSongPSGStart)/zTrackSz
@@ -2107,7 +2107,7 @@ loc_B8C:				; CODE XREF: zUpdateFadeIn+51j
 	pop	bc
 
 loc_B92:				; CODE XREF: zUpdateFadeIn+47j
-	ld	de, 2Ah	; '*'
+	ld	de, zTrackSz	; '*'
 	add	ix, de
 	djnz	loc_B7A
 	pop	ix
@@ -2319,7 +2319,7 @@ loc_CAF:				; CODE XREF: ROM:0CD3j
 	pop	bc
 
 loc_CCE:				; CODE XREF: ROM:0CB3j	ROM:0CC4j
-	ld	de, 2Ah	; '*'
+	ld	de, zTrackSz	; '*'
 	add	ix, de
 	djnz	loc_CAF
 	ld	b, (zSongPSGEnd-zSongPSGStart)/zTrackSz
@@ -2340,7 +2340,7 @@ loc_CD7:				; CODE XREF: ROM:0CF0j
 	ld	(zPSG),a			; Restore Noise setting
 
 loc_CEB:				; CODE XREF: ROM:0CDBj
-	ld	de, 2Ah	; '*'
+	ld	de, zTrackSz	; '*'
 	add	ix, de
 	djnz	loc_CD7
 	ld	a, 80h ; '€'
@@ -2442,7 +2442,7 @@ cfSetTempo:				; CODE XREF: ROM:0C12j
 cfSetTempoMod:				; CODE XREF: ROM:0C16j
 	push	ix
 	ld	ix, zTracksSongStart
-	ld	de, 2Ah	; '*'
+	ld	de, zTrackSz	; '*'
 	ld	b, (zTracksSongEnd-zTracksSongStart)/zTrackSz
 
 loc_D3F:				; CODE XREF: ROM:0D44j
