@@ -84,7 +84,8 @@ zROMWindow =	8000h
 
 zComRange =	1B80h ; most communication between Z80 and 68k happens in here, among other things (like stack storage)
 
-zVariablesStart = zComRange+0
+z1upBackupSourceStart = zComRange
+zVariablesStart = z1upBackupSourceStart
 zSFXPriorityVal = zVariablesStart+0
 zTempoTimeout =	zVariablesStart+1
 zCurrentTempo =	zVariablesStart+2	; Stores current tempo value here
@@ -128,6 +129,7 @@ zSongPSG2 =	zSongPSGStart+(zTrackSz*1)
 zSongPSG3 =	zSongPSGStart+(zTrackSz*2)
 zSongPSGEnd =	zSongPSGStart+(zTrackSz*3)
 zTracksSongEnd =	zSongPSGEnd
+z1upBackupSourceEnd =	zTracksSongEnd
 
 zTracksSFXStart =	zTracksSongEnd	; This is the beginning of all BGM track memory
 zSFXFMStart =	zTracksSFXStart+(zTrackSz*0)
@@ -143,7 +145,6 @@ zSFXPSGEnd =	zSFXPSGStart+(zTrackSz*3)
 zTracksSFXEnd =	zSFXPSGEnd
 
 z1upBackup =	zTracksSFXEnd	; When extra life plays, it backs up a large amount of memory (all track data plus 36 bytes)
-z1upBackupSz = (zTrackSz*(1+6+3))+(zVariablesEnd-zVariablesStart)	; ... specifically, this value
 
 FirstSong   = 01h
 zSongBank   = zMusicBankNumber
@@ -231,7 +232,7 @@ V_Int:
 	call	SetMusicBanks	; set the bank address
 	xor	a					; clear SFX playing flag
 	ld	(RunningSFX),a		; Not updating SFX (updating music)
-	ld	ix,zComRange		; ix points to zComRange
+	ld	ix,zVariablesStart		; ix points to zVariablesStart
 	ld	a,(zStopMusic)		; Get pause/unpause flag
 	or	a					; test 'a'
 	jr	z,zUpdateEverything	; If zero, go to zUpdateEverything
@@ -497,7 +498,7 @@ TempoWait:
 	; overflows, it will update.  So a tempo of 80h will update every other
 	; frame, or 30 times a second.
 
-	ld	ix,zComRange
+	ld	ix,zVariablesStart
 	ld	a,(ix+zTrackTempoDivider)
 	add	a,(ix+zTrackVoiceControl)
 	ld	(ix+zTrackVoiceControl),a
@@ -1224,7 +1225,7 @@ zCycleQueue:				; CODE XREF: V_Int+36p
 	cp	80h ; '€'
 	ret	nz
 	ld	hl, zSFXToPlay
-	ld	a, (zComRange)
+	ld	a, (zSFXPriorityVal)
 	ld	c, a
 	ld	b, 3
 
@@ -1261,7 +1262,7 @@ loc_653:				; CODE XREF: zCycleQueue+2Bj
 	ld	a, c
 	or	a
 	ret	m
-	ld	(zComRange), a
+	ld	(zSFXPriorityVal), a
 	ret
 ; ---------------------------------------------------------------------------
 
@@ -1402,13 +1403,13 @@ loc_707:				; CODE XREF: zPlaySoundByIndex+AFj
 	add	ix, de
 	djnz	loc_707
 	ld	de, z1upBackup
-	ld	hl, zComRange
-	ld	bc, 1BBh
+	ld	hl, z1upBackupSourceStart
+	ld	bc, (z1upBackupSourceEnd-z1upBackupSourceStart)-1
 	ldir
 	ld	a, 80h ; '€'
 	ld	(z1upPlaying), a
 	xor	a
-	ld	(zComRange), a
+	ld	(zSFXPriorityVal), a
 	jr	zBGMLoad
 ; ---------------------------------------------------------------------------
 
@@ -1773,7 +1774,7 @@ loc_970:				; CODE XREF: zPlaySoundByIndex+303j
 
 zloc_KillSFXPrio:				; CODE XREF: zPlaySoundByIndex+241j zStopSoundEffectsp
 	xor	a
-	ld	(zComRange), a
+	ld	(zSFXPriorityVal), a
 	ret
 ; End of function zloc_KillSFXPrio
 
@@ -1959,7 +1960,7 @@ loc_A82:				; CODE XREF: zSilenceFM+15j
 
 
 sub_AAE:				; CODE XREF: zPlaySoundByIndex:zBGMLoadp
-	ld	ix, zComRange
+	ld	ix, zVariablesStart
 	ld	b, (ix+zTrackPlaybackControl)
 	ld	c, (ix+zTrackModulationPtrLow)
 	push	bc
@@ -1969,10 +1970,10 @@ sub_AAE:				; CODE XREF: zPlaySoundByIndex:zBGMLoadp
 	ld	b, (ix+zTrackVolFlutter)
 	ld	c, (ix+zTrackStackPointer)
 	push	bc
-	ld	hl, zComRange
-	ld	de, zTempoTimeout
+	ld	hl, z1upBackupSourceStart
+	ld	de, z1upBackupSourceStart+1
 	ld	(hl), 0
-	ld	bc, 1BAh
+	ld	bc, (z1upBackupSourceEnd-z1upBackupSourceStart)-2
 	ldir
 	pop	bc
 	ld	(ix+zTrackVolFlutter),	b
@@ -2288,8 +2289,8 @@ cfJumpReturn:
 
 cfFadeInToPrevious:				; CODE XREF: ROM:0BFAj
 	ld	hl, z1upBackup
-	ld	de, zComRange
-	ld	bc, 1BBh
+	ld	de, z1upBackupSourceStart
+	ld	bc, (z1upBackupSourceEnd-z1upBackupSourceStart)-1
 	ldir
 	call	SetMusicBanks				; set the bank address
 	ld	a, (zSongDAC+zTrackPlaybackControl)
@@ -2752,7 +2753,7 @@ loc_E59:				; CODE XREF: ROM:0E54j
 	or	a
 	jp	p, loc_ECD
 	xor	a
-	ld	(zComRange), a
+	ld	(zSFXPriorityVal), a
 	ld	a, (ix+zTrackVoiceControl)
 	or	a
 	jp	m, loc_EA5
@@ -2950,10 +2951,10 @@ loc_1092:
 	ld	a,027h					; prepare YM2612 address (Timer/FM3 & 6 Frequency setting)
 	ld	c,000h					; prepare YM2612 data (Timer Halt/No dedicated frequency)
 	rst	zWriteFMI				; halt the YM2612 timer
-	ld	hl,zComRange
-	ld	de,zTempoTimeout
+	ld	hl,zVariablesStart
+	ld	de,zVariablesStart+1
 	ld	(hl),000h
-	ld	bc,002B6h
+	ld	bc,(zTracksSFXEnd-zVariablesStart)-2
 	ldir
 	ld	a,080h
 	ld	(zQueueToPlay),a
