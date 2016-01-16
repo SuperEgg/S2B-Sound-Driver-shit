@@ -722,15 +722,15 @@ TR_ST_Multiply:
 ; START	OF FUNCTION CHUNK FOR FM_Tracker
 
 zFinishTrackUpdate:				; CODE XREF: FM_Tracker+24j FM_Tracker+2Bj ...
-	ld	(ix+zTrackDataPointerLow),	l
-	ld	(ix+zTrackDataPointerHigh),	h
+	ld	(ix+zTrackDataPointerLow), l
+	ld	(ix+zTrackDataPointerHigh), h
 	ld	a, (ix+zTrackSavedDuration)
 	ld	(ix+zTrackDurationTimeout), a
 	bit	4, (ix+zTrackPlaybackControl)
 	ret	nz
 	ld	a, (ix+zTrackResetNoteFill)
 	ld	(ix+zTrackSetNoteFill), a
-	ld	(ix+zTrackVolFlutter),	0
+	ld	(ix+zTrackVolFlutter), 0
 	bit	3, (ix+zTrackPlaybackControl)
 	ret	z
 	ld	l, (ix+zTrackModulationPtrLow)
@@ -902,7 +902,7 @@ loc_3FB:				; CODE XREF: zFMPrepareNote+1Cj
 ;			  C   |  C#  |  D   |  D#  |  E   |  F   |  F#  |  G   |  G#  |  A   |  A#  |  B
 
 zFMFrequencies:	
-	dw  25Eh, 284h,	2ABh, 2D3h, 2FEh, 32Dh,	35Ch, 38Fh, 3C5h, 3FFh,	43Ch, 47Ch
+	dw  25Eh, 284h, 2ABh, 2D3h, 2FEh, 32Dh, 35Ch, 38Fh, 3C5h, 3FFh, 43Ch, 47Ch
 				; DATA XREF: RAM:loc_254r
 	dw 0A5Eh,0A84h,0AABh,0AD3h,0AFEh,0B2Dh,0B5Ch,0B8Fh,0BC5h,0BFFh,0C3Ch,0C7Ch
 	dw 125Eh,1284h,12ABh,12D3h,12FEh,132Dh,135Ch,138Fh,13C5h,13FFh,143Ch,147Ch
@@ -1177,13 +1177,13 @@ zPauseMusic:				; CODE XREF: V_Int+13p
 	jp	m, loc_5CD
 	cp	2
 	ret	z
-	ld	(ix+zTrackDataPointerLow),	2
+	ld	(ix+zTrackDataPointerLow), 2
 	call	zSilenceFM
 	jp	zSilencePSG
 ; ---------------------------------------------------------------------------
 
 loc_5CD:				; CODE XREF: zPauseMusicj
-	ld	(ix+zTrackDataPointerLow),	0
+	ld	(ix+zTrackDataPointerLow), 0
 	ld	ix, zSongFMDACStart
 	ld	b, (zSongFMDACEnd-zSongFMDACStart)/zTrackSz
 	call	sub_5FA
@@ -1279,7 +1279,7 @@ loc_65B:				; CODE XREF: zCycleQueue+16j
 zPlaySoundByIndex:				; CODE XREF: V_Int+3Ep		
 	cp	FirstSong-1
 	ret	c		; return if id is less than the first music id
-	ld	(ix+zTrackVoiceIndex),	0 ; '€'
+	ld	(ix+zTrackVoiceIndex), 0 ; '€'
 	
 	cp	0A0h ; ' '
 	jp	c, zPlayMusic
@@ -1471,10 +1471,10 @@ loc_79A:				; CODE XREF: zPlaySoundByIndex+16Ej
 	set	7, (iy+zTrackPlaybackControl)
 	ld	a, (de)
 	inc	de
-	ld	(iy+zTrackVoiceControl),	a
-	ld	(iy+zTrackTempoDivider),	c
+	ld	(iy+zTrackVoiceControl), a
+	ld	(iy+zTrackTempoDivider), c
 	ld	(iy+zTrackStackPointer), zTrackStack ;	'*'
-	ld	(iy+zTrackAMSFMSPan),	0C0h ; 'À'
+	ld	(iy+zTrackAMSFMSPan), 0C0h ; 'À'
 	ld	(iy+zTrackDurationTimeout), 1
 	push	de
 	push	bc
@@ -1533,8 +1533,8 @@ loc_80D:				; CODE XREF: zPlaySoundByIndex+1E3j
 	set	7, (iy+zTrackPlaybackControl)
 	ld	a, (de)
 	inc	de
-	ld	(iy+zTrackVoiceControl),	a
-	ld	(iy+zTrackTempoDivider),	c
+	ld	(iy+zTrackVoiceControl), a
+	ld	(iy+zTrackTempoDivider), c
 	ld	(iy+zTrackStackPointer), zTrackStack ;	'*'
 	ld	(iy+zTrackDurationTimeout), 1
 	push	de
@@ -1550,7 +1550,7 @@ loc_80D:				; CODE XREF: zPlaySoundByIndex+1E3j
 	inc	hl
 	ld	a, (hl)
 	inc	hl
-	ld	(iy+8),	a
+	ld	(iy+8), a
 	ld	de, zTrackSz	; '*'
 	add	iy, de
 	pop	bc
@@ -1732,7 +1732,7 @@ loc_929:				; DATA XREF: zPlaySoundByIndex+2C8w
 	ldi
 	pop	bc
 	push	bc
-	ld	(ix+zTrackTempoDivider),	c
+	ld	(ix+zTrackTempoDivider), c
 	ld	(ix+zTrackDurationTimeout), 1
 	ld	(ix+zTrackStackPointer), zTrackStack	; '*'
 	ld	a, e
@@ -1749,7 +1749,7 @@ loc_95E:				; DATA XREF: zPlaySoundByIndex+293w
 	ld	a, 0
 	or	a
 	jr	nz, loc_970
-	ld	(ix+zTrackAMSFMSPan),	0C0h ; 'À'
+	ld	(ix+zTrackAMSFMSPan), 0C0h ; 'À'
 
 loc_967:				; DATA XREF: zPlaySoundByIndex+289w
 	ld	de, 0
@@ -1873,7 +1873,7 @@ zUpdateFadeout:				; CODE XREF: V_Int+23p
 loc_A15:				; CODE XREF: zUpdateFadeout+4j
 	dec	(ix+zTrackDataPointerHigh)
 	jp	z, zClearTrackPlaybackMem
-	ld	(ix+zTrackKeyOffset),	3
+	ld	(ix+zTrackKeyOffset), 3
 	push	ix
 	ld	ix, zSongFMStart
 	ld	b, (zSongFMEnd-zSongFMStart)/zTrackSz
@@ -1971,13 +1971,13 @@ sub_AAE:				; CODE XREF: zPlaySoundByIndex:zBGMLoadp
 	ld	bc, (z1upBackupSourceEnd-z1upBackupSourceStart)-2
 	ldir
 	pop	bc
-	ld	(ix+zSFXToPlay),	b
+	ld	(ix+zSFXToPlay), b
 	ld	(ix+zSFXStereoToPlay), c
 	pop	bc
 	ld	(ix+zSpeedUpFlag), b
 	ld	(ix+zFadeInCounter), c
 	pop	bc
-	ld	(ix+zSFXPriorityVal),	b
+	ld	(ix+zSFXPriorityVal), b
 	ld	(ix+z1upPlaying), c
 	xor	a
 	ld	(zVariablesStart+zQueueToPlay), a
@@ -2305,7 +2305,7 @@ loc_CAF:				; CODE XREF: ROM:0CD3j
 	set	1, (ix+zTrackPlaybackControl)
 	ld	a, (ix+zTrackVolume)
 	add	a, c
-	ld	(ix+zTrackVolume),	a
+	ld	(ix+zTrackVolume), a
 	bit	2, (ix+zTrackPlaybackControl)
 	jr	nz, loc_CCE
 	push	bc
@@ -2326,7 +2326,7 @@ loc_CD7:				; CODE XREF: ROM:0CF0j
 	call	zPSGNoteOff
 	ld	a, (ix+zTrackVolume)
 	add	a, c
-	ld	(ix+zTrackVolume),	a
+	ld	(ix+zTrackVolume), a
 	; Restore PSG noise type
 	ld	a,(ix+zTrackVoiceControl)
 	cp	0E0h				; Is this the Noise Channel?
@@ -2416,7 +2416,7 @@ cfNoteFill:				; CODE XREF: ROM:0C0Aj
 
 cfAddKey:				; CODE XREF: ROM:0C0Ej
 	add	a, (ix+zTrackKeyOffset)
-	ld	(ix+zTrackKeyOffset),	a
+	ld	(ix+zTrackKeyOffset), a
 	ret
 
 ; ===========================================================================
@@ -2441,7 +2441,7 @@ cfSetTempoMod:				; CODE XREF: ROM:0C16j
 	ld	b, (zTracksSongEnd-zTracksSongStart)/zTrackSz
 
 loc_D3F:				; CODE XREF: ROM:0D44j
-	ld	(ix+zTrackTempoDivider),	a
+	ld	(ix+zTrackTempoDivider), a
 	add	ix, de
 	djnz	loc_D3F
 	pop	ix
@@ -2517,7 +2517,7 @@ cfSendFMI:
 ; ---------------------------------------------------------------------------
 
 cfSetVoice:				; CODE XREF: ROM:0C26j
-	ld	(ix+zTrackVoiceIndex),	a
+	ld	(ix+zTrackVoiceIndex), a
 	ld	c, a
 	bit	2, (ix+zTrackPlaybackControl)
 	ret	nz
@@ -2812,7 +2812,7 @@ loc_ECE:				; CODE XREF: ROM:0E4Ej
 ; ---------------------------------------------------------------------------
 
 cfSetPSGNoise:				; CODE XREF: ROM:0C36j
-	ld	(ix+zTrackVoiceControl),	0E0h ; 'à'
+	ld	(ix+zTrackVoiceControl), 0E0h ; 'à'
 	ld	(ix+zTrackPSGNoise), a
 	bit	2, (ix+zTrackPlaybackControl)
 	ret	nz
