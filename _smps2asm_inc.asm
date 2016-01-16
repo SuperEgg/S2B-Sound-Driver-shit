@@ -575,7 +575,8 @@ smpsModSet macro wait,speed,change,step
 
 ; Turn on Modulation
 smpsModChange2 macro fmmod,psgmod
-	dc.b	$F1,fmmod,psgmod
+	inform 0,"smpsModChange2 is not complete; do not use"
+	;dc.b	$F1,fmmod,psgmod
 	endm	
 	
 ; F2 - End of channel
@@ -658,7 +659,8 @@ smpsFMICommand macro reg,val
 
 ; Set Modulation
 smpsModChange macro val
-	dc.b	$F4,val
+	inform 0,"smpsModChange is not complete; do not use"
+	;dc.b	$F4,val
 	endm
 
 ; FCxxxx - Jump to xxxx
