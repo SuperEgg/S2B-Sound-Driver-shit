@@ -83,7 +83,7 @@ zBankRegister =	6000h
 zPSG =		7F11h
 zROMWindow =	8000h
 
-zComRange =	1B80h ; most communication between Z80 and 68k happens in here, among other things (like stack storage)
+zComRange =	1B8Ch ; most communication between Z80 and 68k happens in here, among other things (like stack storage)
 
 z1upBackupSourceStart = zComRange
 zVariablesStart = z1upBackupSourceStart

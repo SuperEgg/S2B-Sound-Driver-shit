@@ -828,7 +828,7 @@ loc_129A:
 		rte    
 loc_12AC:
 		lea     ($00FFFFE0),A0
-		lea	($00A01B80),A1
+		lea	($00A01B8C),A1
 		tst.b   $0008(A1)
 		bne.s   loc_12E0
 		move.b	$0000(A0),D0
