@@ -2518,6 +2518,8 @@ cfSendFMI:
 
 cfSetVoice:				; CODE XREF: ROM:0C26j
 	ld	(ix+zTrackVoiceIndex), a
+	bit	7,(ix+zTrackVoiceControl)			; Is this a PSG track?
+	ret	nz				; Return if yes
 	ld	c, a
 	bit	2, (ix+zTrackPlaybackControl)
 	ret	nz
