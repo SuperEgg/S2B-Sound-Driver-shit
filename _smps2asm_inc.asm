@@ -361,7 +361,7 @@ convertMainTempoMod	macro tmod
 	endc
 	endm	
 ; ---------------------------------------------------------------------------------------------
-smpsHeaderStartSong = 0
+;smpsHeaderStartSong = 0
 
 smpsHeaderVoiceNull macro
 	dc.w	$0000
@@ -564,19 +564,19 @@ smpsSetvoice macro voice,songID
 
 ; F0wwxxyyzz - Modulation - ww: wait time - xx: modulation speed - yy: change per step - zz: number of steps
 smpsModSet macro wait,speed,change,step
-	dc.b $F0
-	dc.b wait,speed,change,step
-	endm
-		
-smpsModSetS3K macro wait,speed,change,step
-	dc.b $F0
-	dc.b wait-1,speed,change
-	dc.b ((256+step)/(256-speed)-1)&$FF
+	dc.b	$F0
+	if smpsHeaderStartSong>=3
+		dc.b	wait-1,speed,change
+		dc.b	((256+step)/(256-speed)-1)&$FF
+	else
+		dc.b	wait,speed,change,step
+	endif
 	endm
 
 ; Turn on Modulation
 smpsModChange2 macro fmmod,psgmod
-	dc.b	$F1,fmmod,psgmod
+	inform 0,"smpsModChange2 is not complete; do not use"
+	;dc.b	$F1,fmmod,psgmod
 	endm	
 	
 ; F2 - End of channel
@@ -659,7 +659,8 @@ smpsFMICommand macro reg,val
 
 ; Set Modulation
 smpsModChange macro val
-	dc.b	$F4,val
+	inform 0,"smpsModChange is not complete; do not use"
+	;dc.b	$F4,val
 	endm
 
 ; FCxxxx - Jump to xxxx
