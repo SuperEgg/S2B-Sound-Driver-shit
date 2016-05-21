@@ -5,7 +5,6 @@ zSong_Banklist 	= End_Of_z80Driver
 zMusicPlaylist 	= End_Of_z80Driver+$100
 zDPCM_Notes   	= End_Of_z80Driver+$300
 zDACPtrTbl 		= End_Of_z80Driver+$400
-zDACPtrTbl2 	= End_Of_z80Driver+$500
 z80_FreqFlutterPointers = End_Of_z80Driver+$600
 SNDDAC_Start = $D8000
 SNDDAC2 = $E0000

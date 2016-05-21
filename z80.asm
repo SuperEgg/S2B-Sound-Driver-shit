@@ -82,34 +82,36 @@ zYM2612_D1 =	4003h
 zBankRegister =	6000h
 zPSG =		7F11h
 zROMWindow =	8000h
-
+zCurSong:	=   14E0h
+RunningSFX:	=   14E1h					; 00 BGM | 80 SFX - used to tell the routines whether the channels currently read are SFX or not
 zStack =	1B8Ch
 
 z1upBackupSourceStart = zVariablesStart
 zVariablesStart		= zStack
 zSFXPriorityVal		= 0
-zTempoTimeout		= 1
-zCurrentTempo		= 2	; Stores current tempo value here
-zStopMusic		= 3	; Set to 7Fh to pause music, set to 80h to unpause. Otherwise 00h
-zFadeOutCounter		= 4
-zFadeOutDelay		= 5
-zCommunication		= 6	; Unused byte used to synchronise gameplay events with music
-zDACUpdating		= 7 ; Set to FFh while DAC is updating, then back to 00h
-zQueueToPlay		= 8	; if NOT set to 80h, means new index was requested by 68K
-zSFXToPlay		= 9	; When Genesis wants to play "normal" sound, it writes it here
-zSFXStereoToPlay	= 0Ah	; When Genesis wants to play alternating stereo sound, it writes it here
-zSFXUnknown		= 0Bh ; Unknown type of sound queue, but it's in Genesis code like it was once used
-zVoiceTblPtr		= 0Ch	; address of the voices
-zFadeInFlag		= 0Eh
-zFadeInDelay		= 0Fh
-zFadeInCounter		= 10h
-z1upPlaying		= 11h
-zTempoMod		= 12h
-zTempoTurbo		= 13h	; Stores the tempo if speed shoes are acquired (or 7Bh is played anywho)
-zSpeedUpFlag		= 14h
-zDACEnabled		= 15h
-zMusicBankNumber	= 16h
-zIsPalFlag		= 17h	; I think this flags if system is PAL
+zTempoTimeout		= zSFXPriorityVal+1
+zCurrentTempo		= zTempoTimeout+1 		; Stores current tempo value here
+zStopMusic			= zCurrentTempo+1		; Set to 7Fh to pause music, set to 80h to unpause. Otherwise 00h
+zFadeOutCounter		= zStopMusic+1
+zFadeOutDelay		= zFadeOutCounter+1
+zCommunication		= zFadeOutDelay+1		; Unused byte used to synchronise gameplay events with music
+zDACUpdating		= zCommunication+1 		; Set to FFh while DAC is updating, then back to 00h
+zQueueToPlay		= zDACUpdating+1		; if NOT set to 80h, means new index was requested by 68K
+zSFXToPlay			= zQueueToPlay+1		; When Genesis wants to play "normal" sound, it writes it here
+zSFXStereoToPlay	= zSFXToPlay+1			; When Genesis wants to play alternating stereo sound, it writes it here
+zSFXUnknown			= zSFXStereoToPlay+1 	; Unknown type of sound queue, but it's in Genesis code like it was once used
+zVoiceTblPtr		= zSFXUnknown+1			; address of the voices
+zFlagEmpty			= zVoiceTblPtr+1
+zFadeInFlag			= zFlagEmpty+1
+zFadeInDelay		= zFadeInFlag+1
+zFadeInCounter		= zFadeInDelay+1
+z1upPlaying			= zFadeInCounter+1
+zTempoMod			= z1upPlaying+1
+zTempoTurbo			= zTempoMod+1			; Stores the tempo if speed shoes are acquired (or 7Bh is played anywho)
+zSpeedUpFlag		= zTempoTurbo+1
+zDACEnabled			= zSpeedUpFlag+1
+zMusicBankNumber	= zDACEnabled+1
+zIsPalFlag			= zMusicBankNumber+1	; I think this flags if system is PAL
 zVariablesEnd		= zVariablesStart+18h
 
 zTracksSongStart =	zVariablesEnd	; This is the beginning of all BGM track memory
@@ -241,7 +243,7 @@ V_Int:
 
 zUpdateEverything:
 	dec	(ix+zTempoTimeout)	
-	call	z, sub_AF4
+	call	z, zTempoDelay
 	ld	a, (zVariablesStart+zFadeOutCounter)
 	or	a
 	call	nz, zUpdateFadeout
@@ -1188,30 +1190,36 @@ zSilencePSG:
 
 zPauseMusic:				; CODE XREF: V_Int+13p
 	jp	m, loc_5CD
-	cp	2
-	ret	z
-	ld	(ix+zTrackDataPointerLow), 2
+	ld	a,(zPaused)		; Get paused flag
+	or	a				; Are we paused already?
+	ret	nz				; If so, return
+	ld	a,0FFh			; a = 0FFh
+	ld	(zPaused),a		; Set paused flag
 	call	zSilenceFM
 	jp	zSilencePSG
 ; ---------------------------------------------------------------------------
 
 loc_5CD:				; CODE XREF: zPauseMusicj
-	ld	(ix+zTrackDataPointerLow), 0
-	ld	ix, zSongFMDACStart
-	ld	b, (zSongFMDACEnd-zSongFMDACStart)/zTrackSz
-	call	sub_5FA
-	rst	zBankSwitchToSound	; Now for SFX
-	ld	ix, zSFXFMStart
-	ld	b, (zSongPSGEnd-zSongPSGStart)/zTrackSz
-	call	sub_5FA
+	ld	(zPaused),a		; Clear paused flag
+	ld	ix,zSFXFMStart	; ix = pointer to track RAM
+	ld	b, (zSongPSGEnd-zSongPSGStart)/zTrackSz				; 1 DAC + 6 FM
+	call	zResumeTrack
+
+	rst	zBankSwitchToSound
+
+	ld	a,0FFh			; a = 0FFH
+	ld	(RunningSFX),a	; Set flag to say we are updating SFX
+	ld	ix,zSFXFMStart	; ix = pointer to SFX track RAM
+	ld	b, (zSongPSGEnd-zSongPSGStart)/zTrackSz				; 3 FM
+	call	zResumeTrack
+	xor	a				; a = 0
+	ld	(RunningSFX),a	; Clear SFX updating flag
 	ret
 ; End of function zPauseMusic
-
-
 ; =============== S U B	R O U T	I N E =======================================
 
 
-sub_5FA:				; CODE XREF: zPauseMusic+1Cp zPauseMusic+34p ...
+zResumeTrack:				; CODE XREF: zPauseMusic+1Cp zPauseMusic+34p ...
 	bit	7, (ix+zTrackPlaybackControl)
 	jr	z, loc_619
 	bit	2, (ix+zTrackPlaybackControl)
@@ -1221,12 +1229,12 @@ sub_5FA:				; CODE XREF: zPauseMusic+1Cp zPauseMusic+34p ...
 	call	zSetVoiceMusic
 	pop	bc
 
-loc_619:				; CODE XREF: sub_5FA+4j sub_5FA+Aj
+loc_619:				; CODE XREF: zResumeTrack+4j zResumeTrack+Aj
 	ld	de, zTrackSz	; '*'
 	add	ix, de
-	djnz	sub_5FA
+	djnz	zResumeTrack
 	ret
-; End of function sub_5FA
+; End of function zResumeTrack
 
 
 ; =============== S U B	R O U T	I N E =======================================
@@ -1299,7 +1307,7 @@ zPlaySoundByIndex:				; CODE XREF: V_Int+3Ep
 	cp	0A0h ; ' '
 	ret	c
 	cp	0E1h ; 'á'
-	jp	c, loc_895
+	jp	c, zPlaySound_CheckRing
 	cp	0F8h ; 'ù'
 	ret	c
 	cp	0FEh ; 'þ'
@@ -1634,7 +1642,7 @@ zPSGInitBytes:
 	db 0C0h
 ; ---------------------------------------------------------------------------
 
-loc_895:				; CODE XREF: zPlaySoundByIndex+13j
+zPlaySound_CheckRing:				; CODE XREF: zPlaySoundByIndex+13j
 	ld	c, a
 	ld	a, (ix+z1upPlaying)
 	or	(ix+zFadeOutCounter)
@@ -1643,25 +1651,25 @@ loc_895:				; CODE XREF: zPlaySoundByIndex+13j
 	ld	a, c
 	cp	0B5h ; 'µ'
 	jr	nz, zPlaySound_CheckGloop
-	ld	a, (byte_11AB)
+	ld	a, (zRingSpeaker)
 	or	a
 	jr	nz, loc_8AF
 	ld	c, 0CEh	; 'Î'
 
 loc_8AF:				; CODE XREF: zPlaySoundByIndex+24Dj
 	cpl
-	ld	(byte_11AB), a
+	ld	(zRingSpeaker), a
 	jp	loc_8C5
 ; ---------------------------------------------------------------------------
 
 zPlaySound_CheckGloop:				; CODE XREF: zPlaySoundByIndex+247j
 	cp	0A7h ; '§'
 	jr	nz, loc_8C5
-	ld	a, (byte_11AC)
+	ld	a, (zGloopFlag)
 	or	a
 	ret	nz
 	ld	a, 80h ; '€'
-	ld	(byte_11AC), a
+	ld	(zGloopFlag), a
 
 loc_8C5:				; CODE XREF: zPlaySoundByIndex+255j zPlaySoundByIndex+25Bj
 	rst	zBankSwitchToSound
@@ -2002,19 +2010,19 @@ sub_AAE:				; CODE XREF: zPlaySoundByIndex:zBGMLoadp
 ; =============== S U B	R O U T	I N E =======================================
 
 
-sub_AF4:				; CODE XREF: V_Int+1Cp
+zTempoDelay:				; CODE XREF: V_Int+1Cp
 	ld	a, (zVariablesStart+zCurrentTempo)
 	ld	(zVariablesStart+zTempoTimeout), a
 	ld	hl, zTracksSongStart+zTrackDurationTimeout
 	ld	de, zTrackSz	; '*'
 	ld	b, (zTracksSongEnd-zTracksSongStart)/zTrackSz
 
-loc_B02:				; CODE XREF: sub_AF4+10j
+loc_B02:				; CODE XREF: zTempoDelay+10j
 	inc	(hl)
 	add	hl, de
 	djnz	loc_B02
 	ret
-; End of function sub_AF4
+; End of function zTempoDelay
 
 ; ---------------------------------------------------------------------------
 ; START	OF FUNCTION CHUNK FOR zPlaySoundByIndex
@@ -2505,7 +2513,7 @@ zStoreTrackVolume:
 
 cfClearPush:				; CODE XREF: ROM:0C1Ej
 	xor	a
-	ld	(byte_11AC), a
+	ld	(zGloopFlag), a
 	dec	hl
 	ret
 
@@ -2554,7 +2562,7 @@ loc_D67:				; CODE XREF: ROM:0D62p
 ; =============== S U B	R O U T	I N E =======================================
 
 
-zSetVoiceMusic:				; CODE XREF: sub_5FA+1Bp zStopSoundEffects+3Ap ...
+zSetVoiceMusic:				; CODE XREF: zResumeTrack+1Bp zStopSoundEffects+3Ap ...
 	ld	hl, (zVariablesStart+zVoiceTblPtr)
 
 loc_D79:				; CODE XREF: ROM:0D74j
@@ -3034,11 +3042,10 @@ DPCM_NybbleCon:
 ; ===========================================================================		
 zCurDAC:	db	000h					; DAC Note to use (81 - 8E)
 DAC_BankID: db	000h
-zCurSong:	db	000h
-RunningSFX:	db	000h					; 00 BGM | 80 SFX - used to tell the routines whether the channels currently read are SFX or not
-byte_11AB:	db	000h
-byte_11AC:	db	000h
-zPALUpdTick:	db 0 ; zbyte_12FE ; This counts from 0 to 5 to periodically "double update" for PAL systems (basically every 6 frames you need to update twice to keep up)
+zRingSpeaker:	db	000h
+zGloopFlag:	db	000h
+zPALUpdTick:	= 14E4h ; zbyte_12FE ; This counts from 0 to 5 to periodically "double update" for PAL systems (basically every 6 frames you need to update twice to keep up)
+zPaused  	= 14E5h
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; I'm assuming these are music/sfx priority values 
@@ -3207,38 +3214,3 @@ PSG_Tone0C:
 	db    1
 	db    3
 	db  81h	; €
-			
-
-Speedup_Index:		
-	db  72h	; r
-	db  73h	; s
-	db  26h	; &
-	db  15h
-	db    8
-	db 0FFh
-	db    5
-	db  20h
-	db  20h
-	db  20h
-	db  20h
-	db  20h
-	db  20h
-	db  20h
-	db  20h
-	db  20h
-	db  20h
-	db  20h
-	db  20h
-	db  20h
-	db  20h
-	db  20h
-	db  20h
-	db  20h
-	db  20h
-	db  20h
-	db  20h
-	db  20h
-	db  20h
-	db  20h
-	db  20h
-; ---------------------------------------------------------------

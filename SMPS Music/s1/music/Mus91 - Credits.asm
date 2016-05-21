@@ -134,33 +134,33 @@ Credits_Intro_FM2:
 	smpsLoop            $00, $02, Credits_Intro_FM2
 	smpsSetvoice        $00
 
-Mus91_Credits_Loop10:
+GHZ_Credit_FM2:
 	smpsNoteFill        $05
 	dc.b	nF3, $0C
-	smpsCall            Mus91_Credits_Call0F
+	smpsCall            GHZ_Credit_FM2_Notes
 	smpsNoteFill        $05
 	dc.b	nE3, $0C, $0C, $0C, $0C, $0C
 	smpsNoteFill        $00
 	dc.b	nC3, nD3, nE3
-	smpsLoop            $00, $02, Mus91_Credits_Loop10
+	smpsLoop            $00, $02, GHZ_Credit_FM2
 	smpsNoteFill        $05
 	dc.b	nF3
-	smpsCall            Mus91_Credits_Call0F
+	smpsCall            GHZ_Credit_FM2_Notes
 	smpsNoteFill        $05
 	dc.b	nE3
-	smpsCall            Mus91_Credits_Call0F
+	smpsCall            GHZ_Credit_FM2_Notes
 	smpsNoteFill        $05
 	dc.b	nD3
-	smpsCall            Mus91_Credits_Call0F
+	smpsCall            GHZ_Credit_FM2_Notes
 	smpsNoteFill        $05
 	dc.b	nC3, $0C, $0C, $0C, $0C, $0C
 	smpsNoteFill        $00
 	dc.b	nG2, nA2, nB2
 	smpsNoteFill        $05
 
-Mus91_Credits_Loop11:
+LZ_Credit_FM2:
 	dc.b	nC3
-	smpsLoop            $00, $18, Mus91_Credits_Loop11
+	smpsLoop            $00, $18, LZ_Credit_FM2
 	smpsNoteFill        $00
 	dc.b	nC3, $06, nRst, nC3, $0C, nA2, $06, nRst, nA2, $0C, nBb2, $06
 	dc.b	nRst, nBb2, $0C, nB2, $06, nRst, nB2, $0C
@@ -168,27 +168,27 @@ Mus91_Credits_Loop11:
 	smpsAlterPitch      $E8
 	smpsAlterVol        $02
 
-Mus91_Credits_Loop12:
+MZ_Credit_FM2:
 	dc.b	nC4, $0F, nRst, $03, nE4, nRst, nG4, $09, nRst, $03, nA4, $09
 	dc.b	nRst, $03, nB4, $0F, nRst, $03, nA4, nRst, nG4, $09, nRst, $03
 	dc.b	nE4, $09, nRst, $03
 	smpsAlterPitch      $05
-	smpsLoop            $00, $02, Mus91_Credits_Loop12
+	smpsLoop            $00, $02, MZ_Credit_FM2
 	smpsAlterPitch      $F6
 	dc.b	nC4, $0F, nRst, $03, nE4, nRst, nG4, $09, nRst, $03, nE4, $09
 	dc.b	nRst, $03, nC4, $06, nRst, $12, nE4, $18
 	smpsAlterVol        $01
 	smpsSetvoice        $09
 
-Mus91_Credits_Loop13:
+SLZ_Credit_FM2:
 	dc.b	nA3, $03, nRst, nA3, $06, nE4, $03, nRst, nE4, $06, nD4, $03
 	dc.b	nRst, nD4, $06, nE4, $03, nRst, nE4, $06
-	smpsLoop            $00, $02, Mus91_Credits_Loop13
+	smpsLoop            $00, $02, SLZ_Credit_FM2
 
-Mus91_Credits_Loop14:
+SBZ_Credit_FM2:
 	dc.b	nD4, $03, nRst, nD4, $06, nA4, $03, nRst, nA4, $06, nF4, $03
 	dc.b	nRst, nF4, $06, nA4, $03, nRst, nA4, $06
-	smpsLoop            $00, $02, Mus91_Credits_Loop14
+	smpsLoop            $00, $02, SBZ_Credit_FM2
 	dc.b	nB3, $03, nRst, nB3, $06, nF4, $03, nRst, nF4, $06, nD4, $03
 	dc.b	nRst, nD4, $06, nF4, $03, nRst, nF4, $06, nE4, $03, nRst, nE4
 	dc.b	$06, nB4, $03, nRst, nB4, $06, nAb4, $03, nRst, nAb4, $06, nB4
@@ -259,7 +259,7 @@ Mus91_Credits_Loop17:
 	dc.b	nA2, $6C, smpsNoAttack, $60
 	smpsStop
 
-Mus91_Credits_Call0F:
+GHZ_Credit_FM2_Notes:
 	dc.b	$0C, $0C, $0C, $0C, $0C, $0C
 	smpsNoteFill        $00
 	dc.b	$0C

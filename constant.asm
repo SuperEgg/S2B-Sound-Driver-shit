@@ -370,7 +370,7 @@ Slow_motion_flag =		$FFFFFFD1
 Correct_cheat_entries =		$FFFFFFD4
 Correct_cheat_entries_2 =	$FFFFFFD6 ; for 14 continues or 7 emeralds codes
 Two_player_mode =		$FFFFFFD8 ; flag (0 for main game)
- 
+Two_player_flag = 		Two_player_mode 
 ; Values in these variables are passed to the sound driver during V-INT.
 ; They use a playlist index, not a sound test index.
 Music_to_play =			$FFFFFFE0
@@ -563,23 +563,17 @@ PalNGHzWater= $17
 PalSS		= $18
 
 
-zVariablesStart:		EQU	$1C00
-zPalFlag:				EQU $1C02
-zTempoSpeedup:			EQU $1C08
-zMusicNumber:			EQU $1C0A
-zSFXNumber0:			EQU $1C0B
-zSFXNumber1:			EQU $1C0C
-zPauseFlag:				EQU $1C10
+zDataStart:				EQU	$1B8C
+zMusicNumber:			EQU $14E0
+zSFXNumber0:			EQU $14E1
+zSFXNumber1:			EQU $14E2
+zPauseFlag:				EQU $14E3
+zPalFlag:				EQU $14E5
+zTempoSpeedup:			EQU $14E6
 
 align	macro
 	cnop	0,\1
 	endm
-
-; tells the Z80 to start again
-startZ80 macro
-	move.w	#0,(Z80_Bus_Request).l    ; start the Z80
-    endm
-
 ; ---------------------------------------------------------------------------
 startBank:	macro
 	align 	$8000

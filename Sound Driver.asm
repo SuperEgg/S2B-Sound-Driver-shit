@@ -8,7 +8,15 @@ z80_Driver_End:
 	align	$ED000 
 	else
 z80_Driver:  
-	incbin 	"z80.bin"
+	incbin 	"z80.bin"	
+	align 	$814E0	
+z80_Driver2: 
+zCurSong:	dc.b	0
+RunningSFX:	dc.b	0					; 00 BGM | 80 SFX - used to tell the routines whether the channels currently read are SFX or not
+byte_11AB:	dc.b	0
+byte_11AC:	dc.b	0
+zPALUpdTick:	dc.b 0 ; zbyte_12FE ; This counts from 0 to 5 to periodically "double update" for PAL systems (basically every 6 frames you need to update twice to keep up)	
+zPaused 	dc.b 	0	
 ;=============================================================================== 
 ; DAC Bank Table
 ;=============================================================================== 			
@@ -536,9 +544,6 @@ DACBD:		DAC_Setup	DAC_SampleBD,DAC_SampleBD_End			; dPowerKick2
 DACBE:		DAC_Setup	DAC_SampleBE,DAC_SampleBE_End			; dCrashingNoiseWoo
 DACBF:		DAC_Setup	DAC_SampleBF,DAC_SampleBF_End			; dQuickHit
 
-	align 	m68kDriverSizeStart+zDACPtrTbl2
-
-DAC_PtrTable2:
 DACC0:		DAC_Setup	DAC_SampleC0,DAC_SampleC0_End			; dKickHey
 DACC1:		DAC_Setup 	DAC_SampleB4_C1_C2_C3_C4,DAC_SampleB4_C1_C2_C3_C4_End 	; dPowerKickHit
 DACC2:		DAC_Setup 	DAC_SampleB4_C1_C2_C3_C4,DAC_SampleB4_C1_C2_C3_C4_End 	; dLowPowerKickHit
