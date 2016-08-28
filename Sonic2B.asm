@@ -396,7 +396,7 @@ loc_B82:
 loc_BA2:                   
 		btst	#$00,($00A11100)
 		bne.s   loc_BA2
-		jsr     loc_12AC
+		;jsr     loc_12AC
 		move.w  #$0000,($00A11100)
 		bra.s   loc_B5E
 loc_BBC:                  
@@ -435,7 +435,7 @@ loc_C1E:
 loc_C42:                
 		move.w	($FFFFF624).w,(A5)
 		move.w	#$8230,($00C00004) 
-		jsr     loc_12AC
+		;jsr     loc_12AC
 		move.w	#$0000,($00A11100)
 		bra     loc_B5E
 loc_C60:                
@@ -463,7 +463,7 @@ loc_CAC:
 		move.w	#$7800,(A5) 
 		move.w	#$0083,($FFFFF640).w 
 		move.w  ($FFFFF640).w,(A5) 
-		jsr     loc_12AC
+		;jsr     loc_12AC
 		move.w	#$0000,($00A11100)
 		bra     loc_B5E
 loc_CEC:
@@ -541,7 +541,7 @@ loc_DB6:
 		move.w  #$0083,($FFFFF640).w 
 		move.w  ($FFFFF640).w,(A5)
 		bsr     Process_DMA             ; loc_15CA
-		jsr     loc_12AC
+		;jsr     loc_12AC
 		move.w	#$0000,($00A11100)
 		movem.l ($FFFFEE00).w,D0-D7
 		movem.l  D0-D7,($FFFFEE60).w
@@ -591,7 +591,7 @@ loc_E7A:
 		move.w  #$0083,($FFFFF640).w
 		move.w  ($FFFFF640).w,(A5)
 		bsr     Process_DMA             ; loc_15CA
-		jsr     loc_12AC
+		;jsr     loc_12AC
 		move.w  #$0000,($00A11100)
 		bsr     S1_Pal_Cycle_Special_Stage ; loc_5584 
 		tst.w   ($FFFFF614).w
@@ -640,7 +640,7 @@ loc_F7E:
 		move.w  #$0083,($FFFFF640).w
 		move.w  ($FFFFF640).w,(A5) 
 		bsr     Process_DMA             ; loc_15CA
-		jsr     loc_12AC
+		;jsr     loc_12AC
 		move.w  #$0000,($00A11100)
 		movem.l ($FFFFEE00).w,D0-D7
 		movem.l D0-D7,($FFFFEE60).w
@@ -686,7 +686,7 @@ loc_1028:
 		move.w  #$7C00,(A5)
 		move.w  #$0083,($FFFFF640).w
 		move.w  ($FFFFF640).w,(A5) 
-		jsr     loc_12AC
+		;jsr     loc_12AC
 		move.w  #$0000,($00A11100)
 		tst.w   ($FFFFF614).w
 		beq     loc_10BC
@@ -732,7 +732,7 @@ loc_1124:
 		move.w  #$7C00,(A5)
 		move.w  #$0083,($FFFFF640).w
 		move.w  ($FFFFF640).w,(A5)
-		jsr     loc_12AC
+		;jsr     loc_12AC
 		move.w	#$0000,($00A11100)
 		rts
 VBlank: ; loc_117C:                
@@ -826,6 +826,7 @@ loc_129A:
 		bsr     DemoTime                ; loc_E56  
 		movem.l (A7)+,D0-A6 
 		rte    
+	if 0 == 1
 loc_12AC:
 		lea     ($00FFFFE0),A0
 		lea	($00A01B8C),A1
@@ -854,6 +855,7 @@ loc_12E2:
 loc_12F6:                
 		dbra    D1,loc_12E2
 		rts 
+	endif
 JoypadInit: ; loc_12FC:
 		move.w  #$0100,($00A11100)  
 JoypadInit_Z80Wait: ; loc_1304:
@@ -1004,14 +1006,34 @@ SndLoadLoop:
 	endif
 
 Play_Music: ; loc_14C0: 
-		move.b  D0,($FFFFFFE0).w     
-		rts 
+		move.w	#$0100,($00A11100).l
+@loop:		btst	#$00,($00A11100).l
+		bne.s   @loop
+		tst.b	($00A01B8C+8+0).l
+		bne.s	@backupqueue
+		move.b	D0,($00A01B8C+8+0).l
+		move.w  #$0000,($00A11100).l
+		rts
+@backupqueue:
+		move.b	D0,($00A01B8C+8+1).l
+		move.w  #$0000,($00A11100).l
+		rts
 Play_Sfx: ; loc_14C6:  
-		move.b  D0,($FFFFFFE1).w     
-		rts 
+		move.w	#$0100,($00A11100).l
+@loop:		btst	#$00,($00A11100).l
+		bne.s   @loop
+		tst.b	($00A01B8C+8+2).l
+		bne.s	@backupqueue
+		move.b	D0,($00A01B8C+8+2).l
+		move.w  #$0000,($00A11100).l
+		rts
+@backupqueue:
+		move.b	D0,($00A01B8C+8+3).l
+		move.w  #$0000,($00A11100).l
+		rts
 ;Play_Unknow: ;loc_14CC: ;  
-		move.b  D0,($FFFFFFE2).w     
-		rts   
+		;move.b  D0,($FFFFFFE2).w     
+		;rts   
 Pause: ; loc_14D2: 
 		nop 
 		tst.b   ($FFFFFE12).w
@@ -1019,10 +1041,14 @@ Pause: ; loc_14D2:
 		tst.w   ($FFFFF63A).w
 		bne.s   Pause_AlreadyPaused     ; loc_14EA
 		btst    #$07,($FFFFF605).w
-		beq.s   Pause_DoNothing         ; loc_153C
+		beq.w  Pause_DoNothing         ; loc_153C
 Pause_AlreadyPaused: ; loc_14EA:                 
 		move.w  #$0001,($FFFFF63A).w 
-		move.b  #$FE,($FFFFFFE0).w
+		move.w	#$0100,($00A11100).l
+@loop:		btst	#$00,($00A11100).l
+		bne.s   @loop
+		move.b  #$7F,($00A01B8C+3).l
+		move.w  #$0000,($00A11100).l
 Pause_Loop: ; loc_14F6:                
 		move.b  #$10,($FFFFF62A).w 
 		bsr     DelayProgram            ; loc_31D8
@@ -1042,14 +1068,22 @@ Pause_CheckStart: ; loc_1528:
 		btst    #$07,($FFFFF605).w 
 		beq.s   Pause_Loop              ; loc_14F6
 loc_1530: 
-		move.b  #$FF,($FFFFFFE0).w  
+		move.w	#$0100,($00A11100).l
+@loop:		btst	#$00,($00A11100).l
+		bne.s   @loop
+		move.b  #$80,($00A01B8C+3).l
+		move.w  #$0000,($00A11100).l
 Unpause: ; loc_1536:                
 		move.w  #$0000,($FFFFF63A).w 
 Pause_DoNothing: ; loc_153C:                 
 		rts       
 loc_153E:   
 		move.w  #$0001,($FFFFF63A).w 
-		move.b  #$FF,($FFFFFFE0).w 
+		move.w	#$0100,($00A11100).l
+@loop:		btst	#$00,($00A11100).l
+		bne.s   @loop
+		move.b  #$80,($00A01B8C+3).l
+		move.w  #$0000,($00A11100).l
 		rts 
 ShowVDPGraphics: ; loc_154C: 
 		lea     ($00C00000),A6 
