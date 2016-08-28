@@ -1200,9 +1200,11 @@ zPauseMusic:				; CODE XREF: V_Int+13p
 ; ---------------------------------------------------------------------------
 
 loc_5CD:				; CODE XREF: zPauseMusicj
+	xor	a				; a = 0
+	ld	(zVariablesStart+zStopMusic),a		; Clear pause/unpause flag
 	ld	(zPaused),a		; Clear paused flag
-	ld	ix,zSFXFMStart	; ix = pointer to track RAM
-	ld	b, (zSongPSGEnd-zSongPSGStart)/zTrackSz				; 1 DAC + 6 FM
+	ld	ix,zSongFMDACStart	; ix = pointer to track RAM
+	ld	b, (zSongFMDACEnd-zSongFMDACStart)/zTrackSz				; 1 DAC + 6 FM
 	call	zResumeTrack
 
 	rst	zBankSwitchToSound
@@ -1210,7 +1212,7 @@ loc_5CD:				; CODE XREF: zPauseMusicj
 	ld	a,0FFh			; a = 0FFH
 	ld	(RunningSFX),a	; Set flag to say we are updating SFX
 	ld	ix,zSFXFMStart	; ix = pointer to SFX track RAM
-	ld	b, (zSongPSGEnd-zSongPSGStart)/zTrackSz				; 3 FM
+	ld	b, (zSFXFMEnd-zSFXFMStart)/zTrackSz				; 3 FM
 	call	zResumeTrack
 	xor	a				; a = 0
 	ld	(RunningSFX),a	; Clear SFX updating flag
