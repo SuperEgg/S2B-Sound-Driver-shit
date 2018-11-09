@@ -1100,11 +1100,6 @@ PSGDoVolFX_Loop:
 
 zDoFlutterAdvance:				; CODE XREF: zDoFlutterSetValue+26j
 	add	a, b
-	cp	10h
-	jr	c, loc_57B
-	ld	a, 0Fh
-
-loc_57B:				; CODE XREF: zDoFlutterSetValue+30j
 	ld	b, a
 ; End of function zDoFlutterSetValue
 
@@ -1120,9 +1115,14 @@ zPSGUpdateVol:				; CODE XREF: zDoFlutterSetValue+Cj zUpdateFadeout+57p ...
 	jr	nz, loc_592
 
 loc_588:				; CODE XREF: zDoFlutterAdvance+1Aj zDoFlutterAdvance+20j
-	ld	a, (ix+zTrackVoiceControl)
-	or	b
-	add	a, 10h
+	ld	a, b
+	cp	10h
+	jr	c, loc_57B
+	ld	a, 0Fh
+
+loc_57B:				; CODE XREF: zDoFlutterSetValue+30j
+	or	(ix+zTrackVoiceControl)
+	or	10h
 	ld	(zPSG), a
 	ret
 ; ---------------------------------------------------------------------------
@@ -1937,7 +1937,7 @@ loc_A5E:				; CODE XREF: zUpdateFadeout+4Aj
 	ld	b, (ix+zTrackVolume)
 	ld	a,(ix+zTrackVoiceIndex)
 	or	a			; Is this track using volume envelope 0 (no envelope)?
-	call	z,zDoFlutterAdvance	; If so, update volume (this code is only run on envelope 1+, so we need to do it here for envelope 0)
+	call	z,zPSGUpdateVol	; If so, update volume (this code is only run on envelope 1+, so we need to do it here for envelope 0)
 	pop	bc
 
 loc_A66:				; CODE XREF: zUpdateFadeout+40j zUpdateFadeout+51j
@@ -2121,7 +2121,7 @@ loc_B8C:				; CODE XREF: zUpdateFadeIn+51j
 	ld	b, a
 	ld	a,(ix+zTrackVoiceIndex)
 	or	a			; Is this track using volume envelope 0 (no envelope)?
-	call	z,zDoFlutterAdvance	; If so, update volume (this code is only run on envelope 1+, so we need to do it here for envelope 0)
+	call	z,zPSGUpdateVol	; If so, update volume (this code is only run on envelope 1+, so we need to do it here for envelope 0)
 	pop	bc
 
 loc_B92:				; CODE XREF: zUpdateFadeIn+47j
@@ -2353,7 +2353,7 @@ loc_CD7:				; CODE XREF: ROM:0CF0j
 	; Restore PSG noise type
 	ld	a,(ix+zTrackVoiceControl)
 	cp	0E0h				; Is this the Noise Channel?
-	jr	nz,+				; If not, branch
+	jr	nz,loc_CEB				; If not, branch
 	ld	a,(ix+zTrackPSGNoise)
 	ld	(zPSG),a			; Restore Noise setting
 
@@ -2634,9 +2634,13 @@ FM_WW_NextOperator:
 	rr	e					; rotate (move bit into carry)
 	jr	nc,FM_WW_NotSlot			; if the bit was not set, branch (the operator isn't slot)
 	push	af					; store YM2612 address
+	res	7,c
 	ld	a,d					; load volume change amount requested
 	add	a,c					; add current operator total volume
-	ld	c,a					; save as new total volume data
+	; Prevent attenuation overflow (volume underflow)
+	jp	p,+
+	ld	a,7Fh
++	ld	c,a					; save as new total volume data
 	pop	af					; restore YM2612 address
 
 FM_WW_NotSlot:
